@@ -387,6 +387,9 @@ function onExternalMessage(request, sender, sendResponse) {
 		if (type === "xhrRequest") {
 			addToQueue(request);			
 		}
+		else if (type === "detectExtension") {
+			sendResponse({"result": true});	
+		}
     } else {
   		sendResponse({"result":"Ops, I don't understand this message"});
     }

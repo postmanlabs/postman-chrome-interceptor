@@ -17,13 +17,13 @@ def generate_config_file(web_url):
 	template = Template(s)
 
 	if web_url == "production":
-		app_id = 'POSTMAN_INTERCEPTOR_ID_PRODUCTION'
+		app_id = 'POSTMAN_APP_ID_PRODUCTION'
 	elif web_url == "staging":
-		app_id = 'POSTMAN_INTERCEPTOR_ID_STAGING'
+		app_id = 'POSTMAN_APP_ID_STAGING'
 	elif web_url == "dev":
-		app_id = 'POSTMAN_INTERCEPTOR_ID_DEV'
+		app_id = 'POSTMAN_APP_ID_DEV'
 	else:		
-		app_id = 'POSTMAN_INTERCEPTOR_ID_LOCAL'
+		app_id = 'POSTMAN_APP_ID_LOCAL'
 
 	config_file = open(directory + "/../extension/config.js", "w")
 	config_file.write(template.render(app_id=app_id))

@@ -3,4 +3,4 @@ var POSTMAN_APP_ID_STAGING = "mgicbpdmnpnfckafakeoiomkjcplfcld";
 var POSTMAN_APP_ID_DEV = "aglpidefogoeiamaehklpfoafichfmdk";
 var POSTMAN_APP_ID_LOCAL = "aglpidefogoeiamaehklpfoafichfmdk";
 
-var postmanAppId = POSTMAN_INTERCEPTOR_ID_PRODUCTION; // Local dev
+var postmanAppId = POSTMAN_APP_ID_LOCAL; // Local dev
