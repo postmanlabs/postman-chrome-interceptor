@@ -1,0 +1,22 @@
+{
+  "name": "Postman Interceptor",
+  "version": "0.1.6.1",
+  "description": "Sends requests fired through the Postman chrome app.",
+  "icons":{
+      "16":"icon_16.png",
+      "32":"icon_32.png",
+      "48":"icon_48.png",
+      "128":"icon_128.png"
+  },
+  "browser_action": {
+    "default_title": "Send XHR requests fired from Postman",
+    "default_icon": "icon_16.png",
+    "default_popup": "index.html"
+  },
+  "background": {
+    "page": "background.html",
+    "persistent": true
+  },
+  "permissions": ["webRequest", "webRequestBlocking", "cookies", "http://*/*", "https://*/*"],
+  "manifest_version": 2
+}
