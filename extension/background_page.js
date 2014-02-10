@@ -124,10 +124,6 @@ function sendErrorToPostman(error) {
 
 	console.log(queue);
 
-	if (queue.length > 0) {
-		sendXhrRequest(queue[0].postmanMessage.request);
-	}
-
 	chrome.runtime.sendMessage(
 		postmanAppId, 
 		{	
@@ -141,6 +137,10 @@ function sendErrorToPostman(error) {
 			console.log("Received response", response);
 		}
 	);
+	
+	if (queue.length > 0) {
+		sendXhrRequest(queue[0].postmanMessage.request);
+	}
 }
 
 function sendResponseToPostman(response, cookies) {
@@ -148,10 +148,6 @@ function sendResponseToPostman(response, cookies) {
 	queue.splice(0, 1);	
 
 	console.log("QUEUE", queue);
-
-	if (queue.length > 0) {
-		sendXhrRequest(queue[0].postmanMessage.request);
-	}
 
 	chrome.runtime.sendMessage(
 		postmanAppId, 
@@ -167,6 +163,10 @@ function sendResponseToPostman(response, cookies) {
 			console.log("Received response", response);
 		}
 	);
+
+	if (queue.length > 0) {
+		sendXhrRequest(queue[0].postmanMessage.request);
+	}
 }
 
 function sendXhrRequest(request) {
