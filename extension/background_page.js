@@ -3,7 +3,7 @@ var currentRequest;
 var cookies;
 
 var queue = [];
-var requestQueue = [];
+var requestCache = {};
 
 var toAddHeaders = false;
 
@@ -408,30 +408,39 @@ function onExternalMessage(request, sender, sendResponse) {
     }
 }
 
-
-function onBeforeRequest(details) {
-
-  var filterRequest = function(request) {
-    var patt = /.*/;
+// filters requests before sending it to postman
+function filterRequest(request) {
+    var patt = /hnapi/; // can be more specific
     var validRequestType = "xmlhttprequest";
-    var method = "POST";
-    return (request.type === validRequestType && request.url.match(patt)) ||
-        (request.method === method)
-  };
-
-  if (filterRequest(details)) {
-    console.log("onBeforeRequest: ", details.requestId, details.method, details.url);
-    if (details.method === "POST") {
-      console.log("requestbody", details.requestBody);
-    }
-  }
-
+    return (request.type === validRequestType && request.url.match(patt))
 }
 
-function onSendHeaders(details) {
-  if (details.type === "xmlhttprequest") {
-    console.log("onSendHeaders: ", details.requestId, details.method, details.url);
+// for filtered requests sets a key in requestCache
+function onBeforeRequest(details) {
+  if (filterRequest(details)) {
+    //console.log("onBeforeRequest: ", details.requestId, details.method, details.url);
+    requestCache[details.requestId] = details;
   }
+}
+
+// for filtered requests it sets the headers on the request in requestcache
+function onSendHeaders(details) {
+  if (filterRequest(details)) {
+    if (details.requestId in requestCache) {
+      var req = requestCache[details.requestId];
+      req.requestHeaders = details.requestHeaders;
+      sendRequestToPostman(details.requestId);
+    } else {
+      console.log("Error - Key not found ", details.requestId, details.method, details.url);
+    }
+  }
+}
+
+// sends the request to postman with id as reqId (using the requestCache)
+// then clears the cache
+function sendRequestToPostman(reqId){
+  console.log("Sending reuqest to postmanf for id:", reqId, requestCache[reqId]);
+  delete requestCache[reqId];
 }
 
 // adds an event listener to the onBeforeSendHeaders
@@ -443,13 +452,14 @@ chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,
 // event listener called when postman sends a request (in the form of a message)
 chrome.runtime.onMessageExternal.addListener(onExternalMessage);
 
-// event listener called for each request to intercept
+// event listener called for each request to intercept - used to intercept request data
 chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, 
     { urls: ["<all_urls>"] }, 
     [ "requestBody" ]
 );
 
-chrome.webRequest.onSendHeaders.addListener(onSendHeaders, 
-    { urls: ["<all_urls>"] },
-    [ "requestHeaders" ]
+//event listener called just before sending - used for getting headers
+chrome.webRequest.onSendHeaders.addListener(
+    onSendHeaders, 
+    { urls: ["<all_urls>"] }, [ "requestHeaders" ]
 );
