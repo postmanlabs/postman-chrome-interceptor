@@ -409,8 +409,8 @@ function onExternalMessage(request, sender, sendResponse) {
 }
 
 // filters requests before sending it to postman
-function filterRequest(request) {
-    var patt = /hnapi/; // can be more specific
+function filterRequest(request) { // TODO: add arguments
+    var patt = /hnapi/; 
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -439,8 +439,21 @@ function onSendHeaders(details) {
 // sends the request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendRequestToPostman(reqId){
-  console.log("Sending reuqest to postmanf for id:", reqId, requestCache[reqId]);
-  delete requestCache[reqId];
+  console.log("Sending request to postmanf for id:", reqId);
+  chrome.runtime.sendMessage(
+      postmanAppId,
+      {
+        "postmanMessage": {
+          "reqId": reqId,
+          "request": requestCache[reqId] // TODO: Cookies required?
+        }
+      },
+      function response() {
+        console.log("Postman received request!");
+        delete requestCache[reqId];
+      }
+  );
+  // delete requestCache[reqId]; - Should this be here as a safety measure?
 }
 
 // adds an event listener to the onBeforeSendHeaders
