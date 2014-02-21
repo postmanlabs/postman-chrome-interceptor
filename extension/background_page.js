@@ -3,6 +3,7 @@ var currentRequest;
 var cookies;
 
 var queue = [];
+var requestQueue = [];
 
 var toAddHeaders = false;
 
@@ -13,7 +14,7 @@ var restrictedChromeHeaders = [
     "ACCEPT-ENCODING",
     "ACCESS-CONTROL-REQUEST-HEADERS",
     "ACCESS-CONTROL-REQUEST-METHOD",
-    "CONNECTION",
+    "CONTENT-LENGTHNECTION",
     "CONTENT-LENGTH",
     "COOKIE",
     "CONTENT-TYPE",
@@ -47,43 +48,43 @@ function getBase64FromArrayBuffer(responseData) {
     return base64;
 }
 
+// returns an object from the xhr.getAllReponseHeaders text-only version
 function unpackHeaders(data) {
     if (data === null || data === "") {
         return [];
     }
-    else {
-        var vars = {}, hash;
-        var hashes = data.split('\n');
-        var header;
+    var vars = {}, hash;
+    var hashes = data.split('\n');
+    var header;
 
-        for (var i = 0; i < hashes.length; i++) {
-            hash = hashes[i];
-            if (!hash) {
-                continue;
-            }
-
-            var loc = hash.search(':');
-
-            if (loc !== -1) {
-                var name = hash.substr(0, loc);
-                var value = hash.substr(loc + 1);
-                
-                vars[name] = value;
-            }
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i];
+        if (!hash) {
+            continue;
         }
 
-        return vars;
+        var loc = hash.search(':');
+
+        if (loc !== -1) {
+            var name = hash.substr(0, loc);
+            var value = hash.substr(loc + 1);
+            
+            vars[name] = value;
+        }
     }
+
+    return vars;
 }
 
+// returns true if Content-Type header has image
 function isContentTypeImage(headers, contentType) {
 	if ("Content-Type" in headers) {
 		var contentType = headers["Content-Type"];
 		return (contentType.search(/image/i) >= 0);
 	}
-	else {
-		return false;
-	}
+  else {
+  }
+  return false;
 }
 
 //Usage arrayObjectIndexOf(items, "Washington", "city");
@@ -94,6 +95,7 @@ function arrayObjectIndexOf(myArray, searchTerm, property) {
     return -1;
 }
 
+// uses the FormData API to deal with form data / file data (if any)
 function getFormData(body) {	
 	var paramsBodyData = new FormData();
 	for(var i = 0, len = body.length; i < len; i++) {
@@ -118,11 +120,12 @@ function getFormData(body) {
 	return paramsBodyData;
 }
 
+// sends any errors to postman encountered when XHR was loaded
 function sendErrorToPostman(error) {
 	var guid = queue[0].postmanMessage.guid;
 	queue.splice(0, 1);
 
-	console.log(queue);
+	//console.log(queue);
 
 	chrome.runtime.sendMessage(
 		postmanAppId, 
@@ -143,11 +146,13 @@ function sendErrorToPostman(error) {
 	}
 }
 
+// called after the XHR has loaded. Sends the reponse to Postman
+// also triggers the XHR for the next item in the QUEUE
 function sendResponseToPostman(response, cookies) {
 	var guid = queue[0].postmanMessage.guid;
 	queue.splice(0, 1);	
 
-	console.log("QUEUE", queue);
+	//console.log("QUEUE", queue);
 
 	chrome.runtime.sendMessage(
 		postmanAppId, 
@@ -160,7 +165,7 @@ function sendResponseToPostman(response, cookies) {
 			}			
 		}, 
 		function(response) {
-			console.log("Received response", response);
+			//console.log("Received response", response);
 		}
 	);
 
@@ -169,8 +174,8 @@ function sendResponseToPostman(response, cookies) {
 	}
 }
 
+// the workhorse function - sends the XHR on behalf of postman
 function sendXhrRequest(request) {
-	console.log("Firing XHR request", request);
 
 	currentRequest = request;
 
@@ -178,24 +183,20 @@ function sendXhrRequest(request) {
 	var headers = currentRequest.headers;
 	var found;
 
-	console.log(headers);
-
-	for(var i = 0, len = headers.length; i < len; i++) {		
+    // Adds the prefix: Postman- before all restricted headers
+	for(var i = 0, len = headers.length; i < len; i++) {	
 		found = restrictedChromeHeaders.indexOf(headers[i].name.toUpperCase()) >= 0;
-
-		console.log(found, headers[i].name.toUpperCase());
-
 		if (found) {
 			headers[i].name = "Postman-" + headers[i].name;			
 		}
 	}	
 
 	var url = request.url;
-	var dataMode = request.dataMode;
+	var dataMode = request.dataMode; // what is this for?
 	var xhrTimeout = request.xhrTimeout;
 
+    // Called when the XHR reuqest gets an error
 	function onXhrError(event) {
-		console.log("Error " + event.target.status + " occurred while receiving the document.", event.target);
 		var error = {
 			"status": event.target.status,
 			"statusText": event.target.statusText
@@ -204,11 +205,14 @@ function sendXhrRequest(request) {
 		sendErrorToPostman(error);
 	}
 
+	// Call back function when XHR is loaded - calls sendResponseToPostman with response 
+	// and cookies
 	function onXhrLoad() {
 		toAddHeaders = false;
 
 		var r = this;
 		var response;
+		// RESPONSE HEADERS
 		var unpackedHeaders = unpackHeaders(this.getAllResponseHeaders());
 		var rawHeaders = this.getAllResponseHeaders();
 		var toGetCookies = true;
@@ -227,7 +231,7 @@ function sendXhrRequest(request) {
 				"headers": unpackedHeaders
 			};
 
-			console.log("Received arraybuffer response", response);
+			//console.log("Received arraybuffer response", response);
 		}
 		else {
 			if (isContentTypeImage(unpackedHeaders)) {
@@ -253,12 +257,13 @@ function sendXhrRequest(request) {
 
 		if (toGetCookies) {
 			chrome.cookies.getAll({url:url}, function (cookies) {
-				console.log("Sending response to Postman", response);
+				//console.log("Sending response to Postman", response);
 	            sendResponseToPostman(response, cookies);
 	        });
 		}			
 	}
 
+	// bootstrapping XHR and setting up callbacks
 	var xhr = new XMLHttpRequest();
 	xhr.onload = onXhrLoad;
 	xhr.onerror = onXhrError;
@@ -272,6 +277,8 @@ function sendXhrRequest(request) {
 	xhr.open(request.method, url, true);	
 
 	for (var i = 0; i < headers.length; i++) {
+		// sets the headers on XHR with Postman- prefix
+		// at which point the onBeforeSendHeaders removes the Postman- prefix
 	    xhr.setRequestHeader(headers[i].name, headers[i].value);
 	}
 
@@ -281,70 +288,70 @@ function sendXhrRequest(request) {
 		var body = request.body;
 		if (dataMode === "binary") {
 			body = ArrayBufferEncoderDecoder.decode(request.body);			
-			console.log("Decoded body", body);
+			//console.log("Decoded body", body);
 		}
 		else if (dataMode === "params") {
 			body = getFormData(request.body);
 		}
 
 		xhr.send(body);	
-		
-	}
-	else {
+	} else {
 		xhr.send();
 	}	
 }
 
+// finds a header with a name in an array of headars
 function getHeader(headers, name) {
 	for(var i = 0; i < headers.length; i++) {
 		if (headers[i].name.toUpperCase() === name.toUpperCase()) {
 			return i;
 		}
 	}
-
 	return -1;
 }
 
+// returns an edited header object with retained postman headers
 function onBeforeSendHeaders(details) {
-	// TODO Send this only if requestHeaders have Postman-Token
-	// console.log("onBeforeSendHeaders", details);	
 	var tokenHeaderIndex = getHeader(details.requestHeaders, "Postman-Token");
 	var requestHeaders = details.requestHeaders;
 	var index;
 	var name;
-
 	var prefix = "Postman-";
 	var prefixLength = prefix.length;
-	var newHeaders = [];
+	var newHeaders = [];                // array to hold all headers sent by postman
 	var n;
 	var os = [];
 	var ds = [];
 	var i = 0, j = 0;
 	var bckHeaders = [];
 
+	// runs only if Postman-token is present
 	if (tokenHeaderIndex >= 0) {
 		for(i = 0, len = requestHeaders.length; i < len; i++) {
 			name = requestHeaders[i].name;
+      
+      // for all headers that are being sent by Postman
 			if (name.search(prefix) === 0 && name !== "Postman-Token") {
 				n = requestHeaders[i].name.substr(prefixLength);
-				console.log(n);
 
+        // push them in newHeaders
 				newHeaders.push({
 					"name": n,
 					"value": requestHeaders[i].value
 				})
 
-				f = arrayObjectIndexOf(requestHeaders, n, "name");
-
-				ds.push(f);
+				//var f = arrayObjectIndexOf(requestHeaders, n, "name");
+				ds.push( arrayObjectIndexOf(requestHeaders, n, "name") );
 			}
 		}
 
+	    // retains the postman headers that are repeated
 		for(j = 0; j < ds.length; j++) {
-			requestHeaders.splice(ds[j], 1);
+			requestHeaders.splice( ds[j], 1 );
 		}
 
 		i = 0;
+
 
 		if (requestHeaders[i]) {
 			while(requestHeaders[i]) {				
@@ -352,7 +359,7 @@ function onBeforeSendHeaders(details) {
 				if (name.search(prefix) === 0 && name !== "Postman-Token") {
 					requestHeaders.splice(i, 1);
 					i--;
-					console.log(name);
+					//console.log(name);
 				}
 
 				i++;
@@ -363,47 +370,86 @@ function onBeforeSendHeaders(details) {
 			requestHeaders.push(newHeaders[k]);
 		}
 	}	
-	
+
+	//_.each(requestHeaders, function(h) { console.log(h.name, " - ", h.value) });
 	return {requestHeaders: requestHeaders};
 }
 
+// adds a postman-received request in the QUEUE 
+// sends the XHR if length is 1
 function addToQueue(request) {
 	queue.push(request);
-	console.log("addToQueue: QUEUE", queue);
 
 	if (queue.length === 1) {		
 		sendXhrRequest(queue[0].postmanMessage.request);
 	}	
+  // else ?
 }
 
+// responds to a message from postman - adds the XHR from postman to queue
 function onExternalMessage(request, sender, sendResponse) {
     if (sender.id in blacklistedIds) {
-		sendResponse({"result":"sorry, could not process your message"});
-		return;  // don't allow this extension access
-    } else if (request.postmanMessage) {
-		sendResponse({"result":"Ok, got your message"});
-		var type = request.postmanMessage.type;
-
-		if (type === "xhrRequest") {
-			addToQueue(request);			
-		}
-		else if (type === "detectExtension") {
-			sendResponse({"result": true});	
-		}
-    } else {
+      sendResponse({"result":"sorry, could not process your message"});
+      return;  // don't allow this extension access
+    } 
+    else if (request.postmanMessage) {
+      sendResponse({"result":"Ok, got your message"});
+      var type = request.postmanMessage.type;
+      if (type === "xhrRequest") {
+        addToQueue(request);			 // appends the Postman's message into queue
+      }
+      else if (type === "detectExtension") {
+        // logged when toggleInterceptor is switched on in postman
+        sendResponse({"result": true});	
+      }
+    } 
+    else {
   		sendResponse({"result":"Ops, I don't understand this message"});
     }
 }
 
+
+function onBeforeRequest(details) {
+
+  var filterRequest = function(request) {
+    var patt = /.*/;
+    var validRequestType = "xmlhttprequest";
+    var method = "POST";
+    return (request.type === validRequestType && request.url.match(patt)) ||
+        (request.method === method)
+  };
+
+  if (filterRequest(details)) {
+    console.log("onBeforeRequest: ", details.requestId, details.method, details.url);
+    if (details.method === "POST") {
+      console.log("requestbody", details.requestBody);
+    }
+  }
+
+}
+
+function onSendHeaders(details) {
+  if (details.type === "xmlhttprequest") {
+    console.log("onSendHeaders: ", details.requestId, details.method, details.url);
+  }
+}
+
+// adds an event listener to the onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,
-	{
-		urls: ["<all_urls>"]
-	},
-	[
-		"blocking", 
-		"requestHeaders"
-	]
+	{ urls: ["<all_urls>"] },
+	[ "blocking", "requestHeaders" ]
 );
 
+// event listener called when postman sends a request (in the form of a message)
 chrome.runtime.onMessageExternal.addListener(onExternalMessage);
 
+// event listener called for each request to intercept
+chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, 
+    { urls: ["<all_urls>"] }, 
+    [ "requestBody" ]
+);
+
+chrome.webRequest.onSendHeaders.addListener(onSendHeaders, 
+    { urls: ["<all_urls>"] },
+    [ "requestHeaders" ]
+);
