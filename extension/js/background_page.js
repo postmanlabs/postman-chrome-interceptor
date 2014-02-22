@@ -420,7 +420,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /hnapi/; 
+    var patt = /localhost/; 
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -434,10 +434,10 @@ function onBeforeRequest(details) {
 
 // returns boolean to indicate whether request is from Postman 
 function isPostmanRequest(request) {
-  var i = _.findIndex(request.requestHeaders, function(header){
-    return header.name === "Postman-Token";
-  });
-  return i != -1
+  return (_.chain(request.requestHeaders)
+          .pluck('name')
+          .contains('Postman-Token')
+          .value())
 }
 
 // for filtered requests it sets the headers on the request in requestcache
