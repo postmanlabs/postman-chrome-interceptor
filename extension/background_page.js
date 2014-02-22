@@ -467,7 +467,11 @@ function sendCapturedRequestToPostman(reqId){
         }
       },
       function response() {
-        console.log("Postman received request!");
+        if (!response.success) {
+          console.log("Error occured in sending captured request with id:", reqId);
+        } else { 
+          console.log("Postman received request!");
+        }
         delete requestCache[reqId];
       }
   );
