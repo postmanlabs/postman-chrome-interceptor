@@ -2,6 +2,14 @@ var blacklistedIds = ["none"];
 var currentRequest;
 var cookies;
 
+// enum for postman message types
+var postmanMessageTypes = {
+  xhrError: "xhrError",
+  xhrResponse: "xhrResponse",
+  captureStatus: "captureStatus",
+  capturedRequest: "capturedRequest"
+};
+
 var queue = [];
 var requestCache = {};
 
@@ -132,7 +140,8 @@ function sendErrorToPostman(error) {
 		{	
 			"postmanMessage": {
 				"guid": guid,
-				"type": "xhrError",
+				//"type": "xhrError",
+        "type": postmanMessageTypes.xhrError,
 				"error": error
 			}			
 		}, 
@@ -159,7 +168,8 @@ function sendResponseToPostman(response, cookies) {
 		{	
 			"postmanMessage": {
 				"guid": guid,
-				"type": "xhrResponse",
+				//"type": "xhrResponse",
+        "type": postmanMessageTypes.xhrResponse,
 				"response": response,
 				"cookies": cookies
 			}			
