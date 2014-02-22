@@ -449,13 +449,14 @@ function onSendHeaders(details) {
 // sends the request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendRequestToPostman(reqId){
-  console.log("Sending request to postmanf for id:", reqId);
+  console.log("Sending request to Postman for id:", reqId);
   chrome.runtime.sendMessage(
       postmanAppId,
       {
         "postmanMessage": {
           "reqId": reqId,
-          "request": requestCache[reqId] // TODO: Cookies required?
+          "request": requestCache[reqId],
+          "type": postmanMessageTypes.capturedRequest
         }
       },
       function response() {
