@@ -419,7 +419,7 @@ function onExternalMessage(request, sender, sendResponse) {
 }
 
 // filters requests before sending it to postman
-function filterRequest(request) { // TODO: add arguments
+function filterCapturedRequest(request) { // TODO: add arguments
     var patt = /hnapi/; 
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
@@ -427,7 +427,7 @@ function filterRequest(request) { // TODO: add arguments
 
 // for filtered requests sets a key in requestCache
 function onBeforeRequest(details) {
-  if (filterRequest(details)) {
+  if (filterCapturedRequest(details)) {
     //console.log("onBeforeRequest: ", details.requestId, details.method, details.url);
     requestCache[details.requestId] = details;
   }
@@ -435,11 +435,11 @@ function onBeforeRequest(details) {
 
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
-  if (filterRequest(details)) {
+  if (filterCapturedRequest(details)) {
     if (details.requestId in requestCache) {
       var req = requestCache[details.requestId];
       req.requestHeaders = details.requestHeaders;
-      sendRequestToPostman(details.requestId);
+      sendCapturedRequestToPostman(details.requestId);
     } else {
       console.log("Error - Key not found ", details.requestId, details.method, details.url);
     }
@@ -448,7 +448,7 @@ function onSendHeaders(details) {
 
 // sends the request to postman with id as reqId (using the requestCache)
 // then clears the cache
-function sendRequestToPostman(reqId){
+function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
   chrome.runtime.sendMessage(
       postmanAppId,
@@ -464,7 +464,7 @@ function sendRequestToPostman(reqId){
         delete requestCache[reqId];
       }
   );
-  // delete requestCache[reqId]; - Should this be here as a safety measure?
+  // TODO: delete requestCache[reqId]; - Should this be here as a safety measure?
 }
 
 // adds an event listener to the onBeforeSendHeaders
