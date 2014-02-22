@@ -428,14 +428,21 @@ function filterCapturedRequest(request) { // TODO: add arguments
 // for filtered requests sets a key in requestCache
 function onBeforeRequest(details) {
   if (filterCapturedRequest(details)) {
-    //console.log("onBeforeRequest: ", details.requestId, details.method, details.url);
     requestCache[details.requestId] = details;
   }
 }
 
+// returns boolean to indicate whether request is from Postman 
+function isPostmanRequest(request) {
+  var i = _.findIndex(request.requestHeaders, function(header){
+    return header.name === "Postman-Token";
+  });
+  return i != -1
+}
+
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
-  if (filterCapturedRequest(details)) {
+  if (filterCapturedRequest(details) && !isPostmanRequest(details)) {
     if (details.requestId in requestCache) {
       var req = requestCache[details.requestId];
       req.requestHeaders = details.requestHeaders;
@@ -483,7 +490,7 @@ chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest,
 );
 
 //event listener called just before sending - used for getting headers
-chrome.webRequest.onSendHeaders.addListener(
-    onSendHeaders, 
-    { urls: ["<all_urls>"] }, [ "requestHeaders" ]
+chrome.webRequest.onSendHeaders.addListener(onSendHeaders, 
+    { urls: ["<all_urls>"] }, 
+    [ "requestHeaders" ]
 );
