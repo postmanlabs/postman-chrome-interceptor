@@ -420,7 +420,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /localhost/; 
+    var patt = /hnapi/; 
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -453,7 +453,7 @@ function onSendHeaders(details) {
   }
 }
 
-// sends the request to postman with id as reqId (using the requestCache)
+// sends captured the request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
@@ -476,6 +476,13 @@ function sendCapturedRequestToPostman(reqId){
       }
   );
   // TODO: delete requestCache[reqId]; - Should this be here as a safety measure?
+}
+
+var messagePort = chrome.runtime.connect({name: "requestLogger"});
+
+// sends captured requests to index.html for logging purposes
+function sendCapturedRequestToFrontend(){
+  messagePort.postMessage({msg: "hello world"});
 }
 
 // adds an event listener to the onBeforeSendHeaders
