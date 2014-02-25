@@ -19,8 +19,9 @@
 (function() {
 	function startLogging() {
     var ul = $('#logger');
-    $.getJSON('http://localhost:5000/user-agent', function(data) { 
-      $('#logger').append('<li>Logging: ' +  data["user-agent"] + '</li>');
+    var msg = Math.floor(Math.random()*100000);
+    $.getJSON('http://localhost:5000/random/' + msg, function(data) { 
+      $('#logger').append('<li>Logging: ' +  data["msg"] + '</li>');
     });
   }
 
