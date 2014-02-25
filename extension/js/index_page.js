@@ -10,14 +10,19 @@ chrome.runtime.onConnect.addListener(function(port){
   console.log("Connected to background");
 
   port.onMessage.addListener(function(msg) {
-    logRequest(msg);
+    showLogs(msg.items, loggerList); // msg is a array of log messages
   });
 });
 
-// manipulates DOM to add log msgs
-function logRequest(msg) {
-  var entry = document.createElement('li');
-  var textMsg = "[" + msg.method + "] " +  msg.url;
-  entry.appendChild(document.createTextNode(textMsg));
-  loggerList.appendChild(entry);
+// takes an array of log messages and appends in the container
+// items is of Deque type
+function showLogs(items, container) {
+  container.innerHTML = ""; // clear it first
+
+  for (var i = 0; i < items.length; i++) {
+    var entry = document.createElement('li');
+    entry.appendChild(document.createTextNode(items[i]));
+    container.appendChild(entry);
+  }
 }
+

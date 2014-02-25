@@ -19,6 +19,10 @@ var BackgroundPort;
 // object store to cache captured requests
 var requestCache = {};
 
+// storing last N (maxItems) log messages
+var maxItems = 5;
+var logCache = new Deque(maxItems);
+
 var queue = [];
 
 var toAddHeaders = false;
@@ -466,10 +470,7 @@ function onSendHeaders(details) {
 function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
   
-  var loggerObject = { 
-    url: requestCache[reqId].url, 
-    method: requestCache[reqId].method 
-  };
+  var loggerMsg = "[" + requestCache[reqId].method + "] " + requestCache[reqId].url;
 
   chrome.runtime.sendMessage(
       postmanAppId,
@@ -487,7 +488,7 @@ function sendCapturedRequestToPostman(reqId){
           console.log("Postman received request!");
         }
         // TODO: needs to be moved to response.success block
-        sendCapturedRequestToFrontend(loggerObject);
+        sendCapturedRequestToFrontend(loggerMsg);
         delete requestCache[reqId];
       }
   );
@@ -496,8 +497,9 @@ function sendCapturedRequestToPostman(reqId){
 
 // sends the captured request to popup.html
 function sendCapturedRequestToFrontend(loggerObject) {
+  logCache.push(loggerObject);
   if (popupConnected) {
-    BackgroundPort.postMessage(loggerObject);
+    BackgroundPort.postMessage(logCache);
   }
 }
 
