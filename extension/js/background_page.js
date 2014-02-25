@@ -10,8 +10,16 @@ var postmanMessageTypes = {
   capturedRequest: "capturedRequest"
 };
 
-var queue = [];
+// indicates status of popup connected
+var popupConnected = false;
+
+// placeholder for the background page port object for transferring log msgs
+var BackgroundPort;
+
+// object store to cache captured requests
 var requestCache = {};
+
+var queue = [];
 
 var toAddHeaders = false;
 
@@ -420,7 +428,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /hnapi/; 
+    var patt = /localhost/; 
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -453,10 +461,16 @@ function onSendHeaders(details) {
   }
 }
 
-// sends captured the request to postman with id as reqId (using the requestCache)
+// sends the captured request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
+  
+  var loggerObject = { 
+    url: requestCache[reqId].url, 
+    method: requestCache[reqId].method 
+  };
+
   chrome.runtime.sendMessage(
       postmanAppId,
       {
@@ -472,18 +486,28 @@ function sendCapturedRequestToPostman(reqId){
         } else { 
           console.log("Postman received request!");
         }
+        // TODO: needs to be moved to response.success block
+        sendCapturedRequestToFrontend(loggerObject);
         delete requestCache[reqId];
       }
   );
   // TODO: delete requestCache[reqId]; - Should this be here as a safety measure?
 }
 
-var messagePort = chrome.runtime.connect({name: "requestLogger"});
-
-// sends captured requests to index.html for logging purposes
-function sendCapturedRequestToFrontend(){
-  messagePort.postMessage({msg: "hello world"});
+// sends the captured request to popup.html
+function sendCapturedRequestToFrontend(loggerObject) {
+  if (popupConnected) {
+    BackgroundPort.postMessage(loggerObject);
+  }
 }
+
+// long-lived connection to the popupchannel (as popup is opened)
+// notifies when popup can start listening
+chrome.runtime.onConnect.addListener(function(port){
+  console.assert(port.name === 'POPUPCHANNEL');
+  BackgroundPort = chrome.runtime.connect({name: 'BACKGROUNDCHANNEL'});
+  popupConnected = true;
+});
 
 // adds an event listener to the onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,
