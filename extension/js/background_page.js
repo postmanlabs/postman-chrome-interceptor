@@ -20,7 +20,7 @@ var BackgroundPort;
 var requestCache = {};
 
 // storing last N (maxItems) log messages
-var maxItems = 5;
+var maxItems = 10;
 var logCache = new Deque(maxItems);
 
 var queue = [];
