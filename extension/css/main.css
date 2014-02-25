@@ -1,3 +1,8 @@
+* { 
+  padding: 0px; 
+  margin: 0px;
+}
+
 body {
 	font-family: Helvetica, Arial, sans-serif;
 	color: #333;
@@ -14,4 +19,18 @@ p {
 	font-size: 12px;
 	margin-top: 0;
 	padding: 5px;
+  margin-bottom: 0px;
+}
+
+.logger-area { font-size: 12px; }
+
+h5 { 
+  font-size: 12px; 
+  font-wieght: bold; 
+  margin: 0px; 
+  padding: 5px; 
+}
+
+ol li { 
+  padding: 3px 6px; 
 }
