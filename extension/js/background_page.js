@@ -467,7 +467,7 @@ function onSendHeaders(details) {
 
 // sends the captured request to postman with id as reqId (using the requestCache)
 // then clears the cache
-function sendCapturedRequestToPostman(reqId){
+function sendCapturedRequestToPostman(reqId) {
   console.log("Sending request to Postman for id:", reqId);
   
   var loggerMsg = "[" + requestCache[reqId].method + "] " + requestCache[reqId].url;
