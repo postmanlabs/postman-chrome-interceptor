@@ -29,6 +29,12 @@ var toAddHeaders = false;
 
 var background = this;
 
+// Options which are shared with Extension Popup.
+var appOptions = {
+	isCaptureStateEnabled: false,
+	filterRequestUrl: '.*'
+}
+
 var restrictedChromeHeaders = [
     "ACCEPT-CHARSET",
     "ACCEPT-ENCODING",
@@ -432,7 +438,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /localhost/; 
+    var patt = new RegExp(appOptions.filterRequestUrl, "gi");
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -454,7 +460,7 @@ function isPostmanRequest(request) {
 
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
-  if (filterCapturedRequest(details) && !isPostmanRequest(details)) {
+  if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     if (details.requestId in requestCache) {
       var req = requestCache[details.requestId];
       req.requestHeaders = details.requestHeaders;
@@ -499,7 +505,7 @@ function sendCapturedRequestToPostman(reqId){
 function sendCapturedRequestToFrontend(loggerObject) {
   logCache.push(loggerObject);
   if (popupConnected) {
-    BackgroundPort.postMessage(logCache);
+    BackgroundPort.postMessage({logcache: logCache});
   }
 }
 
@@ -509,7 +515,16 @@ chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'POPUPCHANNEL');
   BackgroundPort = chrome.runtime.connect({name: 'BACKGROUNDCHANNEL'});
   popupConnected = true;
+  port.onMessage.addListener(function(msg) {
+	if (msg.options) {
+		appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
+		appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
+	}
+  });
+  BackgroundPort.postMessage({options: appOptions});
 });
+
+
 
 // adds an event listener to the onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,
