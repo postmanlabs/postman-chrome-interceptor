@@ -470,8 +470,7 @@ function onSendHeaders(details) {
 function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
   
-  var loggerMsg = "[" + requestCache[reqId].method + "] " + 
-                   (requestCache[reqId].url).substring(0, 150);
+  var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">[" + requestCache[reqId].method + "]</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
 
   chrome.runtime.sendMessage(
       postmanAppId,
@@ -502,6 +501,28 @@ function sendCapturedRequestToFrontend(loggerObject) {
   if (popupConnected) {
     BackgroundPort.postMessage({logcache: logCache});
   }
+}
+
+function addClassForRequest(methods) {
+	var color = '';
+	switch (methods) {
+		case "GET":
+			color = " label-success";
+			break;
+		case "POST":
+			color = " label-warning";
+			break;
+		case "PUT":
+			color = " label-primary";
+			break;
+		case "DELETE":
+			color = " label-danger";
+			break;
+		default:
+			color = " label-default";
+			break;
+	}
+	return 'label' + color;
 }
 
 // long-lived connection to the popupchannel (as popup is opened)
