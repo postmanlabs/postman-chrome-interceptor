@@ -29,7 +29,10 @@ var toAddHeaders = false;
 
 var background = this;
 
-var isCaptureStateEnabled = false;
+var appOptions = {
+	isCaptureStateEnabled: false,
+	filterRequestUrl: ''
+}
 
 var restrictedChromeHeaders = [
     "ACCEPT-CHARSET",
@@ -501,7 +504,7 @@ function sendCapturedRequestToPostman(reqId){
 function sendCapturedRequestToFrontend(loggerObject) {
   logCache.push(loggerObject);
   if (popupConnected) {
-    BackgroundPort.postMessage(logCache);
+    BackgroundPort.postMessage({logcache: logCache});
   }
 }
 
@@ -515,11 +518,16 @@ chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'POPUPCHANNEL');
   BackgroundPort = chrome.runtime.connect({name: 'BACKGROUNDCHANNEL'});
   popupConnected = true;
-
   port.onMessage.addListener(function(msg) {
-    toggleCaptureState(msg);
+	if (msg.options) {
+		appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
+		appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
+	}
   });
+  BackgroundPort.postMessage({options: appOptions});
 });
+
+
 
 // adds an event listener to the onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,

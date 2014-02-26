@@ -4,7 +4,10 @@ var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
 // DOM element for appending log messages
 var loggerList = document.getElementById('logger');
 
-var toggleSwitchState = false;
+var appOptions = {
+  toggleSwitchState: false,
+  filterRequestUrl: ''
+}
 
 // long-lived connection to the background channel 
 chrome.runtime.onConnect.addListener(function(port){
@@ -12,8 +15,14 @@ chrome.runtime.onConnect.addListener(function(port){
   console.log("Connected to background");
 
   port.onMessage.addListener(function(msg) {
-    showLogs(msg.items, loggerList); // msg is a array of log messages
+    if (msg.logcache) {
+      showLogs(msg.items, loggerList); // msg is a array of log messages
+    } else if (msg.options) {
+      console.log(msg);
+      setOptions(msg.options);
+    }
   });
+
 });
 
 // takes an array of log messages and appends in the container
@@ -28,8 +37,14 @@ function showLogs(items, container) {
   }
 }
 
+function setOptions(options) {
+  if (options.isCaptureStateEnabled !== appOptions.toggleSwitchState) {
+    toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
+  }
+};
+
 var toggleSwitch = document.getElementById('postManSwitch');
 toggleSwitch.addEventListener('click', function() {
-  toggleSwitchState = !toggleSwitchState;
-  popupPort.postMessage({postmanState: toggleSwitchState});
+  appOptions.toggleSwitchState = !appOptions.toggleSwitchState;
+  popupPort.postMessage({options: appOptions});
 }, false);
