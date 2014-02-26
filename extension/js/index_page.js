@@ -40,11 +40,19 @@ function showLogs(items, container) {
 function setOptions(options) {
   if (options.isCaptureStateEnabled !== appOptions.toggleSwitchState) {
     toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
+    filterUrlInput.value = options.filterRequestUrl;
   }
 };
 
 var toggleSwitch = document.getElementById('postManSwitch');
+var filterUrlInput = document.getElementById('filterRequest');
+
 toggleSwitch.addEventListener('click', function() {
   appOptions.toggleSwitchState = !appOptions.toggleSwitchState;
+  popupPort.postMessage({options: appOptions});
+}, false);
+
+filterUrlInput.addEventListener('input', function() {
+  appOptions.filterRequestUrl = filterUrlInput.value;
   popupPort.postMessage({options: appOptions});
 }, false);
