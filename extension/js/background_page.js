@@ -470,7 +470,8 @@ function onSendHeaders(details) {
 function sendCapturedRequestToPostman(reqId){
   console.log("Sending request to Postman for id:", reqId);
   
-  var loggerMsg = "[" + requestCache[reqId].method + "] " + requestCache[reqId].url;
+  var loggerMsg = "[" + requestCache[reqId].method + "] " + 
+                   (requestCache[reqId].url).substring(0, 150);
 
   chrome.runtime.sendMessage(
       postmanAppId,
