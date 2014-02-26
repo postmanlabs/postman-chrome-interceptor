@@ -16,7 +16,7 @@ label {
 }
 
 #filterRequest {
-	margin: 20px 0 10px 5px;
+	margin: 2px 0 10px 5px;
 	width: 200px;
 	color: #222222;
 	border-radius: 3px;
@@ -51,6 +51,7 @@ h5 {
   font-wieght: bold; 
   margin: 0px; 
   padding: 5px; 
+  margin-top: 4px;
 }
 
 ol li { 
