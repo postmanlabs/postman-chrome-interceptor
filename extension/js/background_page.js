@@ -368,7 +368,6 @@ function onBeforeSendHeaders(details) {
 					"value": requestHeaders[i].value
 				})
 
-				//var f = arrayObjectIndexOf(requestHeaders, n, "name");
 				ds.push( arrayObjectIndexOf(requestHeaders, n, "name") );
 			}
 		}
@@ -380,14 +379,12 @@ function onBeforeSendHeaders(details) {
 
 		i = 0;
 
-
 		if (requestHeaders[i]) {
 			while(requestHeaders[i]) {				
 				name = requestHeaders[i].name;
 				if (name.search(prefix) === 0 && name !== "Postman-Token") {
 					requestHeaders.splice(i, 1);
 					i--;
-					//console.log(name);
 				}
 
 				i++;
@@ -399,7 +396,6 @@ function onBeforeSendHeaders(details) {
 		}
 	}	
 
-	//_.each(requestHeaders, function(h) { console.log(h.name, " - ", h.value) });
 	return {requestHeaders: requestHeaders};
 }
 
@@ -411,23 +407,21 @@ function addToQueue(request) {
 	if (queue.length === 1) {		
 		sendXhrRequest(queue[0].postmanMessage.request);
 	}	
-  // else ?
 }
 
 // responds to a message from postman - adds the XHR from postman to queue
 function onExternalMessage(request, sender, sendResponse) {
     if (sender.id in blacklistedIds) {
       sendResponse({"result":"sorry, could not process your message"});
-      return;  // don't allow this extension access
+      return;
     } 
     else if (request.postmanMessage) {
       sendResponse({"result":"Ok, got your message"});
       var type = request.postmanMessage.type;
       if (type === "xhrRequest") {
-        addToQueue(request);			 // appends the Postman's message into queue
+        addToQueue(request);
       }
       else if (type === "detectExtension") {
-        // logged when toggleInterceptor is switched on in postman
         sendResponse({"result": true});	
       }
     } 
@@ -437,7 +431,7 @@ function onExternalMessage(request, sender, sendResponse) {
 }
 
 // filters requests before sending it to postman
-function filterCapturedRequest(request) { // TODO: add arguments
+function filterCapturedRequest(request) {
     var patt = new RegExp(appOptions.filterRequestUrl, "gi");
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
@@ -523,8 +517,6 @@ chrome.runtime.onConnect.addListener(function(port){
   });
   BackgroundPort.postMessage({options: appOptions});
 });
-
-
 
 // adds an event listener to the onBeforeSendHeaders
 chrome.webRequest.onBeforeSendHeaders.addListener(onBeforeSendHeaders,
