@@ -19,7 +19,6 @@ chrome.runtime.onConnect.addListener(function(port){
     if (msg.logcache) {
       showLogs(msg.logcache.items, loggerList); // msg is a array of log messages
     } else if (msg.options) {
-      console.log(msg);
       setOptions(msg.options);
     }
   });
