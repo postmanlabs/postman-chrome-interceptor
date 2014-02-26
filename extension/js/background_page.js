@@ -29,6 +29,7 @@ var toAddHeaders = false;
 
 var background = this;
 
+// Options which are shared with Extension Popup.
 var appOptions = {
 	isCaptureStateEnabled: false,
 	filterRequestUrl: '.*'

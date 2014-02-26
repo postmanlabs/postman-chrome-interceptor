@@ -4,6 +4,7 @@ var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
 // DOM element for appending log messages
 var loggerList = document.getElementById('logger');
 
+// Options which are shared with Background Page.
 var appOptions = {
   toggleSwitchState: false,
   filterRequestUrl: '.*'
