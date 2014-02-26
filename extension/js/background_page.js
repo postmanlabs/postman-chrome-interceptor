@@ -31,7 +31,7 @@ var background = this;
 
 var appOptions = {
 	isCaptureStateEnabled: false,
-	filterRequestUrl: ''
+	filterRequestUrl: '.*'
 }
 
 var restrictedChromeHeaders = [
@@ -437,7 +437,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /.*/;
+    var patt = new RegExp(appOptions.filterRequestUrl, "gi");
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }

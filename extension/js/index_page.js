@@ -6,7 +6,7 @@ var loggerList = document.getElementById('logger');
 
 var appOptions = {
   toggleSwitchState: false,
-  filterRequestUrl: ''
+  filterRequestUrl: '.*'
 }
 
 // long-lived connection to the background channel 
