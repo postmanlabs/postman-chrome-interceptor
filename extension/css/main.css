@@ -10,6 +10,11 @@ body {
 	padding: 5px;
 }
 
+label {
+	position: relative;
+	right: 50px;
+}
+
 h4 {
 	margin: 0;
 	padding: 5px;

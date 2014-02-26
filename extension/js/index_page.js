@@ -4,6 +4,8 @@ var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
 // DOM element for appending log messages
 var loggerList = document.getElementById('logger');
 
+var toggleSwitchState = false;
+
 // long-lived connection to the background channel 
 chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'BACKGROUNDCHANNEL');
@@ -26,3 +28,8 @@ function showLogs(items, container) {
   }
 }
 
+var toggleSwitch = document.getElementById('postManSwitch');
+toggleSwitch.addEventListener('click', function() {
+  toggleSwitchState = !toggleSwitchState;
+  popupPort.postMessage({postmanState: toggleSwitchState});
+}, false);

@@ -29,6 +29,8 @@ var toAddHeaders = false;
 
 var background = this;
 
+var isCaptureStateEnabled = false;
+
 var restrictedChromeHeaders = [
     "ACCEPT-CHARSET",
     "ACCEPT-ENCODING",
@@ -503,12 +505,20 @@ function sendCapturedRequestToFrontend(loggerObject) {
   }
 }
 
+function toggleCaptureState(msg) {
+	isCaptureStateEnabled = msg.postmanState;
+}
+
 // long-lived connection to the popupchannel (as popup is opened)
 // notifies when popup can start listening
 chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'POPUPCHANNEL');
   BackgroundPort = chrome.runtime.connect({name: 'BACKGROUNDCHANNEL'});
   popupConnected = true;
+
+  port.onMessage.addListener(function(msg) {
+    toggleCaptureState(msg);
+  });
 });
 
 // adds an event listener to the onBeforeSendHeaders
