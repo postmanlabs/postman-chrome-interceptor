@@ -1,0 +1,68 @@
+* { 
+  padding: 0px; 
+  margin: 0px;
+}
+
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	color: #333;
+	width: 300px;	
+	padding: 5px;
+}
+
+label {
+	position: relative;
+	right: 50px;
+}
+
+#filterRequest {
+	margin: 20px 0 10px 5px;
+	width: 200px;
+	color: #222222;
+	border-radius: 3px;
+    border: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2) inset, 0 -1px 0 rgba(0,0,0,0.05) inset;
+    transition: all 0.2s linear;
+    font-size: 17px;
+    height: 36px;
+    padding-left: 3px;
+    font-family: "Helvetica Neue", sans-serif;
+    &::-webkit-input-placeholder {
+       color: #999999;
+    }
+}
+
+h4 {
+	margin: 0;
+	padding: 5px;
+}
+
+p {
+	font-size: 12px;
+	margin-top: 0;
+	padding: 5px;
+  margin-bottom: 0px;
+}
+
+.logger-area { font-size: 12px; }
+
+h5 { 
+  font-size: 12px; 
+  font-wieght: bold; 
+  margin: 0px; 
+  padding: 5px; 
+}
+
+ol li { 
+  padding: 3px 6px; 
+  width: 280px;
+  border-bottom: 1px solid #eee;
+  text-overflow: ellipsis;
+  white-space: pre; /* CSS 2.0 */
+  white-space: pre-wrap; /* CSS 2.1 */
+  white-space: pre-line; /* CSS 3.0 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  white-space: -moz-pre-wrap; /* Mozilla */
+  word-wrap: break-word; /* IE 5+ */
+}

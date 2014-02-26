@@ -2,7 +2,10 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="main.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <link href="css/toggle-switch.css" rel="stylesheet">
+    <style type="text/css">
+    </style>
 </head>
 <body>
     <h4>Postman Interceptor</h4>    
@@ -11,5 +14,21 @@
       to let you test APIs with cookies or
       use restricted headers.
     </p>
+    <label class="switch-light switch-candy">
+      <input id="postManSwitch" type="checkbox">
+      <span>
+        <span>Off</span>
+        <span>On</span>
+      </span>
+      <a></a>
+    </label>
+    <input type="text" id="filterRequest" placeholder="filter by domain">
+    <div class="logger-area">
+      <h5>Last 10 requests</h5>
+      <ol id="logger"> </ol>
+    </div>
+  <script src="lib/underscore-min.js"></script>
+  <script src="js/deque.js"></script>
+  <script src="js/index_page.js"></script>
 </body>
 </html>

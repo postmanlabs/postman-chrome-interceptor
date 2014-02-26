@@ -1,0 +1,45 @@
+<!-- PAGE FOR SENDING XHR FOR CAPTURE WITH POSTMAN INTERCEPTOR -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Testing postman interceptor</title>
+	<script type="text/javascript" src="jquery-min.js"></script>
+</head>
+<body>
+<div>
+	<h2>Logger</h2>
+  <button id="start">Start</button>
+  <button id="stop">Stop</button>
+  <button id="clear">Clear</button>
+	<ul id="logger">
+		
+	</ul>
+</div>
+<script type="text/javascript">
+(function() {
+	function startLogging() {
+    var ul = $('#logger');
+    var msg = Math.floor(Math.random()*100000);
+    $.getJSON('http://localhost:5000/random/' + msg, function(data) { 
+      $('#logger').append('<li>Logging: ' +  data["msg"] + '</li>');
+    });
+  }
+
+  var myTimer = setInterval(function(){ startLogging(); }, 5000); 
+
+  $('#start').on('click', function(){
+    myTimer = setInterval(function(){ startLogging(); }, 5000); 
+  });
+
+  $('#stop').on('click', function(){
+    clearInterval(myTimer);
+    $('#clear').trigger('click');
+  });
+
+  $('#clear').on('click', function(){
+    $('#logger').html('');
+  });
+})();
+</script>
+</body>
+</html>
