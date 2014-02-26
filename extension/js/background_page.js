@@ -437,7 +437,7 @@ function onExternalMessage(request, sender, sendResponse) {
 
 // filters requests before sending it to postman
 function filterCapturedRequest(request) { // TODO: add arguments
-    var patt = /localhost/; 
+    var patt = /.*/;
     var validRequestType = "xmlhttprequest";
     return (request.type === validRequestType && request.url.match(patt))
 }
@@ -459,7 +459,7 @@ function isPostmanRequest(request) {
 
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
-  if (filterCapturedRequest(details) && !isPostmanRequest(details)) {
+  if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     if (details.requestId in requestCache) {
       var req = requestCache[details.requestId];
       req.requestHeaders = details.requestHeaders;
