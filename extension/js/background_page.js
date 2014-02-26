@@ -517,6 +517,7 @@ chrome.runtime.onConnect.addListener(function(port){
 	}
   });
   BackgroundPort.postMessage({options: appOptions});
+  BackgroundPort.postMessage({logcache: logCache});
 });
 
 // adds an event listener to the onBeforeSendHeaders
