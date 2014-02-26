@@ -19,7 +19,6 @@ chrome.runtime.onConnect.addListener(function(port){
     if (msg.logcache) {
       showLogs(msg.logcache.items, loggerList); // msg is a array of log messages
     } else if (msg.options) {
-      console.log(msg);
       setOptions(msg.options);
     }
   });
@@ -30,10 +29,11 @@ chrome.runtime.onConnect.addListener(function(port){
 // items is of Deque type
 function showLogs(items, container) {
   container.innerHTML = ""; // clear it first
-
   for (var i = 0; i < items.length; i++) {
     var entry = document.createElement('li');
-    entry.appendChild(document.createTextNode(items[i]));
+    var node = document.createElement('div');
+    node.innerHTML = items[i];
+    entry.appendChild(node);
     container.appendChild(entry);
   }
 }
