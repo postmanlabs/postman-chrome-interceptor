@@ -13,10 +13,44 @@ body {
 label {
 	position: relative;
 	right: 50px;
+  margin: 20px 0 20px 0;
+}
+
+.label { display: inline;
+  padding: .2em .6em .3em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: .25em;
+  margin-right: .3em;
+}
+
+.label-danger {
+  background-color: #d9534f;
+}
+
+.label-success {
+  background-color: #5cb85c;
+}
+
+.label-primary {
+  background-color: #5cb85c;
+}
+
+.label-default {
+  background-color: #5cb85c;
+}
+
+.label-warning {
+  background-color: #f0ad4e;
 }
 
 #filterRequest {
-	margin: 20px 0 10px 5px;
+	margin: 2px 0 10px 5px;
 	width: 200px;
 	color: #222222;
 	border-radius: 3px;
@@ -51,6 +85,7 @@ h5 {
   font-wieght: bold; 
   margin: 0px; 
   padding: 5px; 
+  margin-top: 4px;
 }
 
 ol li { 
