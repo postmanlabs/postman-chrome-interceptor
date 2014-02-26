@@ -508,10 +508,6 @@ function sendCapturedRequestToFrontend(loggerObject) {
   }
 }
 
-function toggleCaptureState(msg) {
-	isCaptureStateEnabled = msg.postmanState;
-}
-
 // long-lived connection to the popupchannel (as popup is opened)
 // notifies when popup can start listening
 chrome.runtime.onConnect.addListener(function(port){
