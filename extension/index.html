@@ -1,38 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <link href="css/main.css" rel="stylesheet">
-    <link href="css/toggle-switch.css" rel="stylesheet">
-    <style type="text/css">
-    </style>
+	<meta charset="utf-8">
+	<link href="css/main.css" rel="stylesheet">
+	<link href="css/toggle-switch.css" rel="stylesheet">	
 </head>
 <body>
-    <h4>Postman Interceptor</h4>    
-    <p>
-      Intercepts requests sent from Postman
-      to let you test APIs with cookies or
-      use restricted headers.
-    </p>
-    <h5>Toggle Request Capture</h5>
-    <p>Toggle capturing of XHR requests for sending to Postman</p>
-    <label class="switch-light switch-android">
-      <input id="postManSwitch" type="checkbox">
-      <span>
-        <span>Off</span>
-        <span>On</span>
-      </span>
-      <a></a>
-    </label>
-    <h5>Filter Requests</h5>
-    <p>Filter captured requests by domain name</p>
-    <input type="text" id="filterRequest" placeholder="filter by domain">
-    <div class="logger-area">
-      <h5>Last 10 requests</h5>
-      <ol id="logger"> </ol>
-    </div>
-  <script src="lib/underscore-min.js"></script>
-  <script src="js/deque.js"></script>
-  <script src="js/index_page.js"></script>
+	<h4>Postman Interceptor</h4>    
+	<p>
+		Intercepts requests sent from Postman
+		to let you test APIs with cookies or
+		use restricted headers.
+	</p>
+	<h5>Request capture</h5>
+	<p>Captured requests will show up inside Postman's history</p>
+	<label class="switch-light switch-android">
+		<input id="postManSwitch" type="checkbox">
+		<span>
+			<span>Off</span>
+			<span>On</span>
+		</span>
+		<a></a>
+	</label>
+	<h5>Filter requests</h5>
+	<input type="text" id="filterRequest" placeholder="filter by domain">
+	<div class="logger-area">
+		<h5>Last 10 requests</h5>
+		<ol id="logger"> </ol>
+	</div>
+	<script src="lib/underscore-min.js"></script>
+	<script src="js/deque.js"></script>
+	<script src="js/index_page.js"></script>
 </body>
 </html>
