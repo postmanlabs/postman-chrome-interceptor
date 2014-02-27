@@ -1,5 +1,12 @@
+// DOM elements in popup
+var toggleSwitch = document.getElementById('postManSwitch');
+var filterUrlInput = document.getElementById('filterRequest');
+
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
+
+// get the value from localStorage and sets it
+toggleSwitch.checked = localStorage.getItem("toggleSwitchState") === "true";
 
 // DOM element for appending log messages
 var loggerList = document.getElementById('logger');
@@ -42,18 +49,19 @@ function setOptions(options) {
   if (options.isCaptureStateEnabled !== appOptions.toggleSwitchState) {
     toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
     filterUrlInput.value = options.filterRequestUrl;
+    console.log("setting localStorage value");
+    localStorage.setItem('toggleSwitchState', toggleSwitch.checked);
   }
 };
 
-var toggleSwitch = document.getElementById('postManSwitch');
-var filterUrlInput = document.getElementById('filterRequest');
-
 toggleSwitch.addEventListener('click', function() {
-  appOptions.toggleSwitchState = !appOptions.toggleSwitchState;
-  popupPort.postMessage({options: appOptions});
+    appOptions.toggleSwitchState = !appOptions.toggleSwitchState;
+    popupPort.postMessage({options: appOptions});
+    localStorage.setItem('toggleSwitchState', appOptions.toggleSwitchState);
 }, false);
 
 filterUrlInput.addEventListener('input', function() {
-  appOptions.filterRequestUrl = filterUrlInput.value;
-  popupPort.postMessage({options: appOptions});
+    appOptions.filterRequestUrl = filterUrlInput.value;
+    popupPort.postMessage({options: appOptions});
 }, false);
+
