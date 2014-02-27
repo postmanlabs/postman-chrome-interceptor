@@ -439,7 +439,8 @@ function filterCapturedRequest(request) {
 
 // for filtered requests sets a key in requestCache
 function onBeforeRequest(details) {
-  if (filterCapturedRequest(details)) {
+  //if (filterCapturedRequest(details)) {
+  if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     requestCache[details.requestId] = details;
   }
 }
