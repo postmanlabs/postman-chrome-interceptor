@@ -545,14 +545,22 @@ chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'POPUPCHANNEL');
   BackgroundPort = chrome.runtime.connect({name: 'BACKGROUNDCHANNEL'});
   popupConnected = true;
+
   port.onMessage.addListener(function(msg) {
-	if (msg.options) {
-		appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
-		appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
-	}
+    if (msg.options) {
+      appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
+      appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
+    }
   });
+
   BackgroundPort.postMessage({options: appOptions});
   BackgroundPort.postMessage({logcache: logCache});
+
+  // when the popup has been turned off - no longer send messages
+  port.onDisconnect.addListener(function(){
+    popupConnected = false;
+  });
+
 });
 
 // adds an event listener to the onBeforeSendHeaders
