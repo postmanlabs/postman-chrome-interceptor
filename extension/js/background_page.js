@@ -482,9 +482,15 @@ function sendCapturedRequestToPostman(reqId){
 
     // encode raw data if exists
     if (requestBodyType === "rawData") {
-      var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
-      request.requestBody["rawData"] = rawEncodedData;
-      delete request.requestBody["raw"] // strip out existing raw requestBody
+        if(request.requestBody.raw && request.requestBody.raw[0]) {
+            var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
+            request.requestBody["rawData"] = rawEncodedData;
+            delete request.requestBody["raw"] // strip out existing raw requestBody
+        } 
+        else {
+            // if no raw data or bytes set rawData as null
+            request.requestBody["rawData"] = null; 
+        }
     }
   }
 
