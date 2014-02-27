@@ -1,6 +1,7 @@
 // DOM elements in popup
 var toggleSwitch = document.getElementById('postManSwitch');
 var filterUrlInput = document.getElementById('filterRequest');
+var deleteBtn = document.getElementById('delete-log');
 
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
@@ -64,4 +65,9 @@ filterUrlInput.addEventListener('input', function() {
     appOptions.filterRequestUrl = filterUrlInput.value;
     popupPort.postMessage({options: appOptions});
 }, false);
+
+deleteBtn.addEventListener('click', function() {
+    loggerList.innerHTML = "";
+    popupPort.postMessage({reset: "logCache"});
+});
 

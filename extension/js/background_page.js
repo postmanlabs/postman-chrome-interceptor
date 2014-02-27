@@ -554,6 +554,10 @@ chrome.runtime.onConnect.addListener(function(port){
       appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
       appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
     }
+    if(msg.reset) {
+        // clears the logCache
+        logCache.clear();
+    }
   });
 
   BackgroundPort.postMessage({options: appOptions});
