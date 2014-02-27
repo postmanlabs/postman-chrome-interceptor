@@ -497,8 +497,8 @@ function sendCapturedRequestToPostman(reqId){
           "type": postmanMessageTypes.capturedRequest
         }
       },
-      function response() {
-        if (!response.success) {
+      function response(resp) {
+        if (!resp.success) {
           console.log("Error occured in sending captured request with id:", reqId);
         } else { 
           console.log("Postman received request!");
