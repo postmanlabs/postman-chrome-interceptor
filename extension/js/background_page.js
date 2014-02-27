@@ -484,6 +484,7 @@ function sendCapturedRequestToPostman(reqId){
     if (requestBodyType === "rawData") {
       var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
       request.requestBody["rawData"] = rawEncodedData;
+      delete request.requestBody["raw"] // strip out existing raw requestBody
     }
   }
 
