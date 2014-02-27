@@ -20,9 +20,23 @@
 	function startLogging() {
     var ul = $('#logger');
     var msg = Math.floor(Math.random()*100000);
+    
+    // testing get requests
     $.getJSON('http://localhost:5000/random/' + msg, function(data) { 
       $('#logger').append('<li>Logging: ' +  data["msg"] + '</li>');
     });
+
+    // testing post with json-encoded data
+    $.ajax({
+       type: "POST",
+       url: "http://localhost:5000/post", 
+       dataType:'json',
+       data: JSON.stringify({ "userName": "prakhar1989", "password" : "secret" }),
+       success: function() {
+          console.log("json-encoded data posted");
+       }
+    });
+
   }
 
   var myTimer = setInterval(function(){ startLogging(); }, 5000); 

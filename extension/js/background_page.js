@@ -517,6 +517,7 @@ function sendCapturedRequestToFrontend(loggerObject) {
   }
 }
 
+// adds class for the span tag for styling in popup
 function addClassForRequest(methods) {
 	var color = '';
 	switch (methods) {
