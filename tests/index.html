@@ -33,7 +33,7 @@
        dataType:'json',
        data: JSON.stringify({ "userName": "prakhar1989", "password" : "secret" }),
        success: function() {
-          console.log("json-encoded data posted");
+         $('#logger').append('<li>Logging: POST</li>');
        }
     });
 

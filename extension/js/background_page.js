@@ -468,15 +468,15 @@ function onSendHeaders(details) {
 
 // sends the captured request to postman with id as reqId (using the requestCache)
 // then clears the cache
-function sendCapturedRequestToPostman(reqId) {
-  var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">[" + requestCache[reqId].method + "]</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
+function sendCapturedRequestToPostman(reqId){
+  var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">" + requestCache[reqId].method + "</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
 
   var request = requestCache[reqId];
   var isPost = request.method === "POST";
   var requestBodyType;
   var rawEncodedData;
 
-  if (isPost) {
+  if (isPost && request.requestBody) {
     requestBodyType = _.has(request.requestBody, 'formData') ? 'formData' : 'rawData';
     request.requestBodyType = requestBodyType;
 
@@ -497,8 +497,8 @@ function sendCapturedRequestToPostman(reqId) {
           "type": postmanMessageTypes.capturedRequest
         }
       },
-      function response() {
-        if (!response.success) {
+      function response(resp) {
+        if (!resp.success) {
           console.log("Error occured in sending captured request with id:", reqId);
         } else { 
           console.log("Postman received request!");
