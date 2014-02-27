@@ -476,7 +476,7 @@ function sendCapturedRequestToPostman(reqId){
   var requestBodyType;
   var rawEncodedData;
 
-  if (isPost) {
+  if (isPost && request.requestBody) {
     requestBodyType = _.has(request.requestBody, 'formData') ? 'formData' : 'rawData';
     request.requestBodyType = requestBodyType;
 
