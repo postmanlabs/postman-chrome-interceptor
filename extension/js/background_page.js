@@ -504,14 +504,9 @@ function sendCapturedRequestToPostman(reqId){
         }
       },
       function response(resp) {
-        if (!resp.success) {
-          console.log("Error occured in sending captured request with id:", reqId);
-        } else { 
-          console.log("Postman received request!");
-        }
-        // TODO: needs to be moved to response.success block
-        sendCapturedRequestToFrontend(loggerMsg);
-        delete requestCache[reqId];
+          console.log("Request sent to postman for request:", reqId);
+          sendCapturedRequestToFrontend(loggerMsg);
+          delete requestCache[reqId];
       }
   );
 }
