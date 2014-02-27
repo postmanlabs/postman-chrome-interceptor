@@ -469,9 +469,23 @@ function onSendHeaders(details) {
 // sends the captured request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendCapturedRequestToPostman(reqId){
-  console.log("Sending request to Postman for id:", reqId);
-  
   var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">[" + requestCache[reqId].method + "]</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
+
+  var request = requestCache[reqId];
+  var isPost = request.method === "POST";
+  var requestBodyType;
+  var rawEncodedData;
+
+  if (isPost) {
+    requestBodyType = _.has(request.requestBody, 'formData') ? 'formData' : 'rawData';
+    request.requestBodyType = requestBodyType;
+
+    // encode raw data if exists
+    if (requestBodyType === "rawData") {
+      var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
+      request.requestBody["rawData"] = rawEncodedData;
+    }
+  }
 
   chrome.runtime.sendMessage(
       postmanAppId,
@@ -493,7 +507,6 @@ function sendCapturedRequestToPostman(reqId){
         delete requestCache[reqId];
       }
   );
-  // TODO: delete requestCache[reqId]; - Should this be here as a safety measure?
 }
 
 // sends the captured request to popup.html
