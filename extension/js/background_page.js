@@ -433,8 +433,8 @@ function onExternalMessage(request, sender, sendResponse) {
 // filters requests before sending it to postman
 function filterCapturedRequest(request) {
     var patt = new RegExp(appOptions.filterRequestUrl, "gi");
-    var validRequestType = "xmlhttprequest";
-    return (request.type === validRequestType && request.url.match(patt))
+    var validRequestTypes = ["xmlhttprequest", "main_frame", "sub_frame"];
+    return (_.contains(validRequestTypes, request.type) && request.url.match(patt))
 }
 
 // for filtered requests sets a key in requestCache
