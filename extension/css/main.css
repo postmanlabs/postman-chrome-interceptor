@@ -89,6 +89,9 @@ h5 {
 }
 
 ol li { 
+  margin-top: 3px;
+  margin-bottom: 3px;
+  line-height: 1.3em;
   padding: 3px 6px; 
   width: 280px;
   border-bottom: 1px solid #eee;
