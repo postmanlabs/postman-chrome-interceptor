@@ -2,6 +2,7 @@
 var toggleSwitch = document.getElementById('postManSwitch');
 var filterUrlInput = document.getElementById('filterRequest');
 var deleteBtn = document.getElementById('delete-log');
+var tickIcon = document.getElementById('tick-icon');
 
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
@@ -46,6 +47,15 @@ function showLogs(items, container) {
   }
 }
 
+function setTickIconVisibility(){
+    var domain = filterUrlInput.value;
+    if (domain.length && domain != ".*") {
+        tickIcon.className = "show";
+    } else {
+        tickIcon.className = "hide";
+    }
+}
+
 function setOptions(options) {
   if (options.isCaptureStateEnabled !== appOptions.toggleSwitchState) {
     toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
@@ -62,7 +72,9 @@ toggleSwitch.addEventListener('click', function() {
 }, false);
 
 filterUrlInput.addEventListener('input', function() {
+    var domain = filterUrlInput.value;
     appOptions.filterRequestUrl = filterUrlInput.value;
+    setTickIconVisibility();
     popupPort.postMessage({options: appOptions});
 }, false);
 

@@ -96,10 +96,7 @@ ol li {
   white-space: pre; /* CSS 2.0 */
   white-space: pre-wrap; /* CSS 2.1 */
   white-space: pre-line; /* CSS 3.0 */
-  white-space: -pre-wrap; /* Opera 4-6 */
-  white-space: -o-pre-wrap; /* Opera 7 */
-  white-space: -moz-pre-wrap; /* Mozilla */
-  word-wrap: break-word; /* IE 5+ */
+  word-wrap: break-word;
 }
 
 #delete-log {
@@ -107,3 +104,12 @@ ol li {
     margin-right: 10px;
     margin-top: 52px;
 }
+
+#tick-icon {
+    -webkit-transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.show { opacity: 1; }
+
+.hide { opacity: 0; }
