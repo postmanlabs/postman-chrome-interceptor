@@ -9,6 +9,9 @@
 function Deque(N) {
   this._maxlength = N;
   this.items = new Array();
+  this.clear = function() {
+      this.items = [];
+  }
 }
 
 Deque.prototype.dequeue = function() {

@@ -482,9 +482,15 @@ function sendCapturedRequestToPostman(reqId){
 
     // encode raw data if exists
     if (requestBodyType === "rawData") {
-      var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
-      request.requestBody["rawData"] = rawEncodedData;
-      delete request.requestBody["raw"] // strip out existing raw requestBody
+        if(request.requestBody.raw && request.requestBody.raw[0]) {
+            var rawEncodedData = getBase64FromArrayBuffer(request.requestBody.raw[0].bytes);
+            request.requestBody["rawData"] = rawEncodedData;
+            delete request.requestBody["raw"] // strip out existing raw requestBody
+        } 
+        else {
+            // if no raw data or bytes set rawData as null
+            request.requestBody["rawData"] = null; 
+        }
     }
   }
 
@@ -498,14 +504,9 @@ function sendCapturedRequestToPostman(reqId){
         }
       },
       function response(resp) {
-        if (!resp.success) {
-          console.log("Error occured in sending captured request with id:", reqId);
-        } else { 
-          console.log("Postman received request!");
-        }
-        // TODO: needs to be moved to response.success block
-        sendCapturedRequestToFrontend(loggerMsg);
-        delete requestCache[reqId];
+          console.log("Request sent to postman for request:", reqId);
+          sendCapturedRequestToFrontend(loggerMsg);
+          delete requestCache[reqId];
       }
   );
 }
@@ -552,6 +553,10 @@ chrome.runtime.onConnect.addListener(function(port){
     if (msg.options) {
       appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
       appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
+    }
+    if(msg.reset) {
+        // clears the logCache
+        logCache.clear();
     }
   });
 

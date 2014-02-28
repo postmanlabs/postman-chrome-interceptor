@@ -101,3 +101,9 @@ ol li {
   white-space: -moz-pre-wrap; /* Mozilla */
   word-wrap: break-word; /* IE 5+ */
 }
+
+#delete-log {
+    float: right;
+    margin-right: 10px;
+    margin-top: 52px;
+}
