@@ -552,15 +552,13 @@ chrome.runtime.onConnect.addListener(function(port){
   port.onMessage.addListener(function(msg) {
     if (msg.options) {
       appOptions.isCaptureStateEnabled = msg.options.toggleSwitchState;
-      if (msg.options.filterRequestUrl == "") {
+      if (msg.options.filterRequestUrl === "") {
           appOptions.filterRequestUrl = ".*";
       } else {
-          appOptions.filterRequestUrl = msg.options.filterRequestUrl;
+          appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
       }
-      console.log(appOptions.filterRequestUrl);
     }
     if(msg.reset) {
-        // clears the logCache
         logCache.clear();
     }
   });
