@@ -394,6 +394,8 @@ function onBeforeSendHeaders(details) {
 		for(var k = 0; k < newHeaders.length; k++) {
 			requestHeaders.push(newHeaders[k]);
 		}
+
+		delete requestCache[details.requestId];
 	}	
 
 	return {requestHeaders: requestHeaders};
