@@ -9,32 +9,15 @@ describe('Interceptor Library', function() {
 		sinon.stub(chrome.runtime ,'sendMessage');
 	});
 
-	it("By Default No request should be returned to Postman.", function() {
-		var request = {
-			type: 'xmlhttprequest',
-			url: 'localhost:8000',
-			requestId: '1',
-			requestBody: {
-			},
-			requestHeaders: [
-			]
-		};
+	it("By Default no request should be returned to Postman.", function() {
+        var request = getNewRequest();
 		this.chromeEventOrder(request);
 		expect(chrome.runtime.sendMessage.called).toBe(false);
 	});
 
 	it("Should Return a request, back to postman.", function() {
 		appOptions.isCaptureStateEnabled = true;
-		var request = {
-			type: 'xmlhttprequest',
-			url: 'localhost:8000',
-			requestId: '1',
-			requestBody: {
-			},
-			requestHeaders: [
-			]
-		};
-
+        var request = getNewRequest();
 		this.chromeEventOrder(request);
 
 		expect(chrome.runtime.sendMessage.args[0][0]).toBe('POSTMAN');
