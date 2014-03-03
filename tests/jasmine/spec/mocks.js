@@ -3,6 +3,7 @@ postmanAppId = 'POSTMAN';
 var getNewRequest = function() {
     return {
         type: 'xmlhttprequest',
+        method: "get",
         url: 'localhost:8000',
         requestId: '1',
         requestBody: { },
@@ -27,20 +28,17 @@ var postmanMessage = function() {
     }
 }
 
-if (!chrome.runtime) {
-    chrome.runtime = {};
-}
-
-chrome.runtime.sendMessage = function() {
-}
-
-chrome.runtime.onConnect = {
-	addListener : function(){}
+chrome.runtime = {
+    sendMessage: function() {
+    },
+    onConnect: {
+        addListener: function(){}
+    },
+    onMessageExternal: {
+        addListener: function(){}
+    }
 };
 
-chrome.runtime.onMessageExternal = {
-	addListener : function(){}
-};
 
 chrome.webRequest = {
 	onBeforeSendHeaders: {
