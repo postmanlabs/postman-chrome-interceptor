@@ -45,7 +45,7 @@ describe('Interceptor Library', function() {
 		appOptions.isCaptureStateEnabled = false;
 	});
 
-    it("Should filter all domains by default", function() {
+    it("Filter should allow all domains by default", function() {
         appOptions.isCaptureStateEnabled = true;
         expect(appOptions.filterRequestUrl).toBe(".*");
         var request = getNewRequest(1);
@@ -56,13 +56,24 @@ describe('Interceptor Library', function() {
     });
 
 
-    it("Should set filter domain correctly", function() {
+    it("Filter should block incorrect domains when enabled", function() {
         appOptions.isCaptureStateEnabled = true;
         appOptions.filterRequestUrl = "google";
         var request = getNewRequest(1);
         this.chromeEventOrder(request);
 
         expect(chrome.runtime.sendMessage.called).toBe(false);
+    });
+
+    it("Filter should allow correct domains when enabled", function() {
+        appOptions.isCaptureStateEnabled = true;
+        appOptions.filterRequestUrl = "google";
+        var request = getNewRequest(2);
+        request.url = "www.google.com/someXHR";
+        this.chromeEventOrder(request);
+
+        expect(chrome.runtime.sendMessage.called).toBe(true);
+        expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe(2);
     });
 
 	afterEach(function() {
