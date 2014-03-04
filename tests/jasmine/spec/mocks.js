@@ -1,6 +1,6 @@
 var postmanAppId = 'POSTMAN';
 
-var noop = function() {};
+var noop = function() {}; // this is cute :D
 
 var getNewRequest = function(id) {
     return {
@@ -20,7 +20,7 @@ var chrome = {
             addListener: noop
         },
         onMessageExternal: {
-            addListener: fnoop
+            addListener: noop
         }
     },
     webRequest: {

@@ -48,18 +48,18 @@ describe('Interceptor Library', function() {
     it("Should filter all domains by default", function() {
         appOptions.isCaptureStateEnabled = true;
         expect(appOptions.filterRequestUrl).toBe(".*");
-        var request = getNewRequest();
+        var request = getNewRequest(1);
         this.chromeEventOrder(request);
 
         expect(chrome.runtime.sendMessage.called).toBe(true);
-        expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe('1');
+        expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe(1);
     });
 
 
     it("Should set filter domain correctly", function() {
         appOptions.isCaptureStateEnabled = true;
         appOptions.filterRequestUrl = "google";
-        var request = getNewRequest();
+        var request = getNewRequest(1);
         this.chromeEventOrder(request);
 
         expect(chrome.runtime.sendMessage.called).toBe(false);
