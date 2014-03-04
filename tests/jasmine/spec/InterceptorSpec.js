@@ -82,3 +82,30 @@ describe('Interceptor Library', function() {
 	});
 
 });
+
+describe("Postman functionality", function() {
+
+    it("Toggle should send correct message to interceptor", function() {
+        var postmanMessage = { postmanMessage: { type: "detectExtension"} };
+        var sender = { id: 1 };
+        var sendResponse = sinon.stub();
+        onExternalMessage(postmanMessage, sender, sendResponse);
+
+        expect(sendResponse.called).toBe(true);
+        expect(sendResponse.callCount).toBe(2);
+        expect(sendResponse.args[0][0].result).toBe("Ok, got your message");
+    });
+
+    it("Interceptor should recieve XHR request from Postman", function() {
+        var postmanMessage = { postmanMessage: { type: "xhrRequest"} };
+        var sender = { id: 1 };
+        var sendResponse = sinon.stub();
+        sinon.stub(window, 'sendXhrRequest');
+        onExternalMessage(postmanMessage, sender, sendResponse);
+
+        expect(sendResponse.called).toBe(true);
+        expect(sendResponse.calledOnce).toBe(true);
+        expect(sendResponse.args[0][0].result).toBe("Ok, got your message");
+        expect(sendXhrRequest.called).toBe(true);
+    });
+});
