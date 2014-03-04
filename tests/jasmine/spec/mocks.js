@@ -1,53 +1,37 @@
-postmanAppId = 'POSTMAN';
+var postmanAppId = 'POSTMAN';
 
-var getNewRequest = function() {
+var noop = function() {};
+
+var getNewRequest = function(id) {
     return {
         type: 'xmlhttprequest',
         method: "get",
         url: 'localhost:8000',
-        requestId: '1',
+        requestId: id,
         requestBody: { },
         requestHeaders: [ ]
     }
 };
 
-var postmanMessage = function() {
-    return { 
-        "reqId": "10891",
-        "request": {
-            "frameId": 2, "method": "POST",
-            "parentFrameId": 0, "requestBodyType": "formData", //formData or rawData
-            "requestBody": {},
-            "requestId": "10891",
-            "tabId": 161, "timestamp": 1393432789060.789,
-            "type": "xmlhttprequest",
-            "url": "",
-            "requestHeaders": [ ],
+var chrome = {
+    runtime: {
+        sendMessage: noop,
+        onConnect: {
+            addListener: noop
         },
-        "type": "capturedRequest"
-    }
-}
-
-chrome.runtime = {
-    sendMessage: function() {
+        onMessageExternal: {
+            addListener: fnoop
+        }
     },
-    onConnect: {
-        addListener: function(){}
-    },
-    onMessageExternal: {
-        addListener: function(){}
+    webRequest: {
+        onBeforeSendHeaders: {
+            addListener : noop
+        },
+        onBeforeRequest: {
+            addListener : noop
+        },
+        onSendHeaders: {
+            addListener : noop
+        }
     }
-};
-
-
-chrome.webRequest = {
-	onBeforeSendHeaders: {
-		addListener : function(){}
-	},
-	onBeforeRequest: {
-		addListener : function(){}
-	},
-	onSendHeaders: {
-		addListener : function(){}
-	}
 };

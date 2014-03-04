@@ -1,3 +1,21 @@
+/*
+ * Sample response returned from the Interceptor,
+ * {
+        "reqId": "10891",
+        "request": {
+            "frameId": 2, "method": "POST",
+            "parentFrameId": 0, "requestBodyType": "formData", //formData or rawData
+            "requestBody": {},
+            "requestId": "10891",
+            "tabId": 161, "timestamp": 1393432789060.789,
+            "type": "xmlhttprequest",
+            "url": "",
+            "requestHeaders": [ ],
+        },
+        "type": "capturedRequest"
+    }
+ */
+
 describe('Interceptor Library', function() {
 	
 	beforeEach(function() {
@@ -10,18 +28,18 @@ describe('Interceptor Library', function() {
 	});
 
 	it("By Default no request should be returned to Postman.", function() {
-        var request = getNewRequest();
+        var request = getNewRequest(1);
 		this.chromeEventOrder(request);
 		expect(chrome.runtime.sendMessage.called).toBe(false);
 	});
 
 	it("Should Return a request, back to postman.", function() {
 		appOptions.isCaptureStateEnabled = true;
-        var request = getNewRequest();
+        var request = getNewRequest(1);
 		this.chromeEventOrder(request);
 
 		expect(chrome.runtime.sendMessage.args[0][0]).toBe('POSTMAN');
-		expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe('1');
+		expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe(1);
 		expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.request).toBe(request);
 
 		appOptions.isCaptureStateEnabled = false;
