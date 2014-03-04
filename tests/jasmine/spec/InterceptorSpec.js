@@ -45,8 +45,29 @@ describe('Interceptor Library', function() {
 		appOptions.isCaptureStateEnabled = false;
 	});
 
+    it("Should filter all domains by default", function() {
+        appOptions.isCaptureStateEnabled = true;
+        expect(appOptions.filterRequestUrl).toBe(".*");
+        var request = getNewRequest();
+        this.chromeEventOrder(request);
+
+        expect(chrome.runtime.sendMessage.called).toBe(true);
+        expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe('1');
+    });
+
+
+    it("Should set filter domain correctly", function() {
+        appOptions.isCaptureStateEnabled = true;
+        appOptions.filterRequestUrl = "google";
+        var request = getNewRequest();
+        this.chromeEventOrder(request);
+
+        expect(chrome.runtime.sendMessage.called).toBe(false);
+    });
+
 	afterEach(function() {
 		this.chromeEventOrder = null;
 		chrome.runtime.sendMessage.restore();
 	});
+
 });
