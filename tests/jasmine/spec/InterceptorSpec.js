@@ -1,21 +1,3 @@
-/*
- * Sample response returned from the Interceptor,
- * {
-        "reqId": "10891",
-        "request": {
-            "frameId": 2, "method": "POST",
-            "parentFrameId": 0, "requestBodyType": "formData", //formData or rawData
-            "requestBody": {},
-            "requestId": "10891",
-            "tabId": 161, "timestamp": 1393432789060.789,
-            "type": "xmlhttprequest",
-            "url": "",
-            "requestHeaders": [ ],
-        },
-        "type": "capturedRequest"
-    }
- */
-
 describe('When Interceptor sends a captured request to Postman', function() {
 	
 	beforeEach(function() {
