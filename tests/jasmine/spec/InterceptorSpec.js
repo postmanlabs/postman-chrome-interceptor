@@ -16,7 +16,7 @@
     }
  */
 
-describe('Interceptor Library', function() {
+describe('When Interceptor sends a captured request to Postman', function() {
 	
 	beforeEach(function() {
 		this.chromeEventOrder = function(args) {
@@ -83,10 +83,11 @@ describe('Interceptor Library', function() {
 
 });
 
-describe("Postman functionality", function() {
+describe("When Postman sends a message to Interceptor", function() {
 
     it("Toggle should send correct message to interceptor", function() {
-        var postmanMessage = { postmanMessage: { type: "detectExtension"} };
+        var postmanMessage = getPostmanMessage("detectExtension");
+        console.log(postmanMessage);
         var sender = { id: 1 };
         var sendResponse = sinon.stub();
         onExternalMessage(postmanMessage, sender, sendResponse);
@@ -97,7 +98,8 @@ describe("Postman functionality", function() {
     });
 
     it("Interceptor should recieve XHR request from Postman", function() {
-        var postmanMessage = { postmanMessage: { type: "xhrRequest"} };
+        var postmanMessage = getPostmanMessage("xhrRequest");
+        console.log(postmanMessage);
         var sender = { id: 1 };
         var sendResponse = sinon.stub();
         sinon.stub(window, 'sendXhrRequest');
@@ -107,5 +109,7 @@ describe("Postman functionality", function() {
         expect(sendResponse.calledOnce).toBe(true);
         expect(sendResponse.args[0][0].result).toBe("Ok, got your message");
         expect(sendXhrRequest.called).toBe(true);
+        expect(sendXhrRequest.args[0][0].headers[0]["key"]).toBe("Postman-Token");
     });
+
 });
