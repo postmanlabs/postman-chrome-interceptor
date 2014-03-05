@@ -1,6 +1,6 @@
 var postmanAppId = 'POSTMAN';
 
-var noop = function() {};
+var noop = function() {}; // this is cute :D
 
 var getNewRequest = function(id) {
     return {
@@ -13,6 +13,22 @@ var getNewRequest = function(id) {
     }
 };
 
+// mock a message from postman
+// type takes 2 values -> detectExtension or xhrRequest
+var getPostmanMessage = function(type) {
+    var message = { postmanMessage: { type: type } };
+    if (type === "xhrRequest") {
+        message.postmanMessage.request = {
+            dataMode: "",
+            headers: [ { key: "Postman-Token", value: "100" } ],
+            method: "GET",
+            responseType: "text",
+            url: "localhost:8000",
+        }
+    }
+    return message;
+};
+
 var chrome = {
     runtime: {
         sendMessage: noop,
@@ -20,7 +36,7 @@ var chrome = {
             addListener: noop
         },
         onMessageExternal: {
-            addListener: fnoop
+            addListener: noop
         }
     },
     webRequest: {
