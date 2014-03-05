@@ -72,10 +72,6 @@ describe('When Interceptor sends a captured request to Postman', function() {
         expect(chrome.runtime.sendMessage.called).toBe(false);
     });
 
-
-    it("clears cache on each request", function() {
-    });
-
 	afterEach(function() {
 		this.chromeEventOrder = null;
         appOptions.isCaptureStateEnabled = false;
