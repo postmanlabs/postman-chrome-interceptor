@@ -9,13 +9,13 @@ describe('When Interceptor sends a captured request to Postman', function() {
 		sinon.stub(chrome.runtime ,'sendMessage');
 	});
 
-	it("By Default no request should be returned to Postman.", function() {
+	it("No request should be captured to Postman by default", function() {
         var request = getNewRequest(1);
 		this.chromeEventOrder(request);
 		expect(chrome.runtime.sendMessage.called).toBe(false);
 	});
 
-	it("Should Return a request, back to postman.", function() {
+	it("Should capture a request when Toggle is ON.", function() {
 		appOptions.isCaptureStateEnabled = true;
         var request = getNewRequest(1);
 		this.chromeEventOrder(request);
@@ -45,6 +45,8 @@ describe('When Interceptor sends a captured request to Postman', function() {
         this.chromeEventOrder(request);
 
         expect(chrome.runtime.sendMessage.called).toBe(false);
+
+        appOptions.filterRequestUrl = ".*";
     });
 
     it("Filter should allow correct domains when enabled", function() {
@@ -69,7 +71,6 @@ describe("When Postman sends a message to Interceptor", function() {
 
     it("Toggle should send correct message to interceptor", function() {
         var postmanMessage = getPostmanMessage("detectExtension");
-        console.log(postmanMessage);
         var sender = { id: 1 };
         var sendResponse = sinon.stub();
         onExternalMessage(postmanMessage, sender, sendResponse);
@@ -81,7 +82,6 @@ describe("When Postman sends a message to Interceptor", function() {
 
     it("Interceptor should recieve XHR request from Postman", function() {
         var postmanMessage = getPostmanMessage("xhrRequest");
-        console.log(postmanMessage);
         var sender = { id: 1 };
         var sendResponse = sinon.stub();
         sinon.stub(window, 'sendXhrRequest');
