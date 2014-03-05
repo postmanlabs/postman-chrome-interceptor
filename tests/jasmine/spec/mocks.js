@@ -13,6 +13,22 @@ var getNewRequest = function(id) {
     }
 };
 
+// mock a message from postman
+// type takes 2 values -> detectExtension or xhrRequest
+var getPostmanMessage = function(type) {
+    var message = { postmanMessage: { type: type } };
+    if (type === "xhrRequest") {
+        message.postmanMessage.request = {
+            dataMode: "",
+            headers: [ { key: "Postman-Token", value: "100" } ],
+            method: "GET",
+            responseType: "text",
+            url: "localhost:8000",
+        }
+    }
+    return message;
+};
+
 var chrome = {
     runtime: {
         sendMessage: noop,
