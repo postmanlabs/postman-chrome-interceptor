@@ -58,10 +58,27 @@ describe('When Interceptor sends a captured request to Postman', function() {
 
         expect(chrome.runtime.sendMessage.called).toBe(true);
         expect(chrome.runtime.sendMessage.args[0][1].postmanMessage.reqId).toBe(2);
+
+        appOptions.filterRequestUrl = ".*";
+    });
+
+    it("Postman requests should not be captured", function(){
+        appOptions.isCaptureStateEnabled = true;
+        var request = getNewRequest(3);
+        // set a postman header to mock a postman request
+        request.requestHeaders = [ { name: "Postman-Token", value: "1" } ];
+        this.chromeEventOrder(request);
+
+        expect(chrome.runtime.sendMessage.called).toBe(false);
+    });
+
+
+    it("clears cache on each request", function() {
     });
 
 	afterEach(function() {
 		this.chromeEventOrder = null;
+        appOptions.isCaptureStateEnabled = false;
 		chrome.runtime.sendMessage.restore();
 	});
 
