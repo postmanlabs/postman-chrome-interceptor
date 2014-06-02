@@ -3,6 +3,7 @@ var toggleSwitch = document.getElementById('postManSwitch');
 var filterUrlInput = document.getElementById('filterRequest');
 var deleteBtn = document.getElementById('delete-log');
 var tickIcon = document.getElementById('tick-icon');
+var filteredRequests = document.getElementById('filtered-requests');
 
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
@@ -29,6 +30,8 @@ chrome.runtime.onConnect.addListener(function(port){
       showLogs(msg.logcache.items, loggerList); // msg is a array of log messages
     } else if (msg.options) {
       setOptions(msg.options);
+
+      console.log("Received message options", msg.options);
     }
   });
 
@@ -47,35 +50,54 @@ function showLogs(items, container) {
   }
 }
 
-function setTickIconVisibility(){
+function setTickIconVisibility() {
     var domain = filterUrlInput.value;
-    if (domain.length && domain != ".*") {
-        tickIcon.className = "show";
-    } else {
-        tickIcon.className = "hide";
-    }
+    tickIcon.className = "show";
+
+    setInterval(function() {
+      tickIcon.className = "hide";
+    }, 1000);    
 }
 
 function setOptions(options) {
-  if (options.isCaptureStateEnabled !== appOptions.toggleSwitchState) {
-    toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
-    filterUrlInput.value = options.filterRequestUrl;
-    console.log("setting localStorage value");
-    localStorage.setItem('toggleSwitchState', toggleSwitch.checked);
+  if (options.isCaptureStateEnabled) {
+    filteredRequests.className = 'show';
+  } 
+  else {
+    filteredRequests.className = 'hide';
   }
+
+  toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
+  filterUrlInput.value = options.filterRequestUrl;        
+
+  localStorage.setItem('toggleSwitchState', toggleSwitch.checked);  
 };
 
 toggleSwitch.addEventListener('click', function() {
     appOptions.toggleSwitchState = !appOptions.toggleSwitchState;
     popupPort.postMessage({options: appOptions});
+
+    if (appOptions.toggleSwitchState) {
+      filteredRequests.className = 'show';
+    } 
+    else {
+      filteredRequests.className = 'hide';
+    }
+
     localStorage.setItem('toggleSwitchState', appOptions.toggleSwitchState);
 }, false);
 
+var wait;
+
 filterUrlInput.addEventListener('input', function() {
-    var domain = filterUrlInput.value;
-    appOptions.filterRequestUrl = filterUrlInput.value;
-    setTickIconVisibility();
-    popupPort.postMessage({options: appOptions});
+    clearTimeout(wait);
+    wait = setTimeout(function() {
+      var domain = filterUrlInput.value;
+      appOptions.filterRequestUrl = filterUrlInput.value;
+      setTickIconVisibility();
+      popupPort.postMessage({options: appOptions});      
+    }, 500);
+
 }, false);
 
 deleteBtn.addEventListener('click', function() {

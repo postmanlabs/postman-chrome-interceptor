@@ -1,0 +1,5 @@
+0.2.3
+=====
+
+- [Bug] Not obvious if the filter has been updated
+- [Bug] On/off state does not change sometimes

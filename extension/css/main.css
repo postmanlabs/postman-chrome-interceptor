@@ -108,11 +108,25 @@ ol li {
     margin-top: 52px;
 }
 
-#tick-icon {
-    -webkit-transition: opacity 0.3s ease-in-out;
-    transition: opacity 0.3s ease-in-out;
+#tick-icon {    
 }
 
-.show { opacity: 1; }
+.show { 
+  display: inline-block !important;
+}
 
-.hide { opacity: 0; }
+.hide { 
+  display: none !important;
+}
+
+#tick-icon {
+  -webkit-transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
+
+  display: none;
+  border-radius: 4px;
+  background-color: green;
+  color: white;
+  font-size: 12px;
+  padding: 6px;    
+}
