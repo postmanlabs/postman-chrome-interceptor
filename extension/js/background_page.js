@@ -42,8 +42,7 @@ var restrictedChromeHeaders = [
     "ACCESS-CONTROL-REQUEST-METHOD",
     "CONTENT-LENGTHNECTION",
     "CONTENT-LENGTH",
-    "COOKIE",
-    "CONTENT-TYPE",
+    "COOKIE",    
     "CONTENT-TRANSFER-ENCODING",
     "DATE",
     "EXPECT",
@@ -350,31 +349,34 @@ function onBeforeSendHeaders(details) {
 	var n;
 	var os = [];
 	var ds = [];
-	var i = 0, j = 0;
-	var bckHeaders = [];
+	var i = 0, j = 0;	
+	var term;	
 
 	// runs only if Postman-token is present
-	if (tokenHeaderIndex >= 0) {
+	if (tokenHeaderIndex >= 0) {		
+
 		for(i = 0, len = requestHeaders.length; i < len; i++) {
-			name = requestHeaders[i].name;
+			name = requestHeaders[i].name;			
       
       // for all headers that are being sent by Postman
 			if (name.search(prefix) === 0 && name !== "Postman-Token") {
 				n = requestHeaders[i].name.substr(prefixLength);
 
-        // push them in newHeaders
+        		// push them in newHeaders
 				newHeaders.push({
 					"name": n,
 					"value": requestHeaders[i].value
-				})
+				});
+				
+				var term = prefix + n;
 
-				ds.push( arrayObjectIndexOf(requestHeaders, n, "name") );
+				ds.push(arrayObjectIndexOf(requestHeaders, term, "name") );
 			}
 		}
 
 	    // retains the postman headers that are repeated
 		for(j = 0; j < ds.length; j++) {
-			requestHeaders.splice( ds[j], 1 );
+			requestHeaders.splice(ds[j], 1);
 		}
 
 		i = 0;
