@@ -128,7 +128,8 @@ function getFormData(body) {
 			paramsBodyData.append(body[i].name, body[i].value);
 		}
 		else if (body[i].type === "file") {
-			var files = body[i].value;			
+			var files = body[i].value;	
+			var fileName = body[i].fileNames;		
 			var newBuffer;
 			var buffers = [];
 			for(var j = 0; j < files.length; j++) {
@@ -137,7 +138,7 @@ function getFormData(body) {
 			}
 
 			var blobs = new Blob(buffers);			
-			paramsBodyData.append(body[i].name, blobs);
+			paramsBodyData.append(body[i].name, blobs, fileName);
 		}		
 
 	}
