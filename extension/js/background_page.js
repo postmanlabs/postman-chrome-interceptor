@@ -129,7 +129,7 @@ function getFormData(body) {
 		}
 		else if (body[i].type === "file") {
 			var files = body[i].value;	
-			var fileName = body[i].fileNames;		
+			var fileName = body[i].fileName;		
 			var newBuffer;
 			var buffers = [];
 			for(var j = 0; j < files.length; j++) {
