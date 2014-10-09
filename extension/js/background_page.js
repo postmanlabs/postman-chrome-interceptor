@@ -212,10 +212,14 @@ function sendXhrRequest(request) {
 	var found;
 
     // Adds the prefix: Postman- before all restricted headers
-	for(var i = 0, len = headers.length; i < len; i++) {	
-		found = restrictedChromeHeaders.indexOf(headers[i].name.toUpperCase()) >= 0;
+	for(var i = 0, len = headers.length; i < len; i++) {
+		var upperCasedHeader = headers[i].name.toUpperCase();
+		found = restrictedChromeHeaders.indexOf(upperCasedHeader) >= 0;
 		if (found) {
-			headers[i].name = "Postman-" + headers[i].name;			
+			headers[i].name = "Postman-" + headers[i].name;
+		}
+		else if(upperCasedHeader.indexOf("PROXY-")===0 || upperCasedHeader.indexOf("SEC-")===0) {
+			headers[i].name = "Postman-" + headers[i].name;
 		}
 	}	
 
