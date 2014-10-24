@@ -124,6 +124,9 @@ function arrayObjectIndexOf(myArray, searchTerm, property) {
 function getFormData(body) {	
 	var paramsBodyData = new FormData();
 	for(var i = 0, len = body.length; i < len; i++) {
+		if (body[i].enabled === false) {
+			continue;
+		}
 		if (body[i].type === "text") {
 			paramsBodyData.append(body[i].name, body[i].value);
 		}
@@ -311,6 +314,9 @@ function sendXhrRequest(request) {
 	for (var i = 0; i < headers.length; i++) {
 		// sets the headers on XHR with Postman- prefix
 		// at which point the onBeforeSendHeaders removes the Postman- prefix
+		if(headers[i].enabled === false) {
+			continue;
+		}
 	    xhr.setRequestHeader(headers[i].name, headers[i].value);
 	}
 
