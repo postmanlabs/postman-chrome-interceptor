@@ -42,7 +42,7 @@ var restrictedChromeHeaders = [
     "ACCESS-CONTROL-REQUEST-METHOD",
     "CONTENT-LENGTHNECTION",
     "CONTENT-LENGTH",
-    "COOKIE",    
+    "COOKIE",
     "CONTENT-TRANSFER-ENCODING",
     "DATE",
     "EXPECT",
@@ -205,6 +205,21 @@ function sendResponseToPostman(response, cookies) {
 	}
 }
 
+function setCookiesFromHeader(cookieHeader, url) {
+	var cookies = cookieHeader.split(";");
+	var numCookies = cookies.length;
+	var retVal = [];
+	for(var i=0;i<numCookies;i++) {
+		var thisCookie = cookies[i].trim().split("=");
+		chrome.cookies.set({
+			url: url,
+			name: thisCookie[0],
+			value: thisCookie[1]
+		});
+	}
+}
+
+
 // the workhorse function - sends the XHR on behalf of postman
 function sendXhrRequest(request) {
 
@@ -212,17 +227,23 @@ function sendXhrRequest(request) {
 
 	// TODO Set restricted headers
 	var headers = currentRequest.headers;
+	var cookies = [];
 	var found;
 
     // Adds the prefix: Postman- before all restricted headers
 	for(var i = 0, len = headers.length; i < len; i++) {
 		var upperCasedHeader = headers[i].name.toUpperCase();
-		found = restrictedChromeHeaders.indexOf(upperCasedHeader) >= 0;
-		if (found) {
-			headers[i].name = "Postman-" + headers[i].name;
+		if(upperCasedHeader==="COOKIE") {
+			cookies = setCookiesFromHeader(headers[i].value, request.url);
 		}
-		else if(upperCasedHeader.indexOf("PROXY-")===0 || upperCasedHeader.indexOf("SEC-")===0) {
-			headers[i].name = "Postman-" + headers[i].name;
+		else {
+			found = restrictedChromeHeaders.indexOf(upperCasedHeader) >= 0;
+			if (found) {
+				headers[i].name = "Postman-" + headers[i].name;
+			}
+			else if (upperCasedHeader.indexOf("PROXY-") === 0 || upperCasedHeader.indexOf("SEC-") === 0) {
+				headers[i].name = "Postman-" + headers[i].name;
+			}
 		}
 	}	
 
@@ -331,12 +352,12 @@ function sendXhrRequest(request) {
 		else if (dataMode === "params") {
 			body = getFormData(request.body);
 		}
-
-		xhr.send(body);	
+		xhr.send(body);
 	} else {
 		xhr.send();
 	}	
 }
+
 
 // finds a header with a name in an array of headars
 function getHeader(headers, name) {
