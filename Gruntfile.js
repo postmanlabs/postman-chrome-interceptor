@@ -20,6 +20,11 @@ module.exports = function(grunt) {
           command: 'python scripts/configure.py --web_url dev'
       },
 
+      configure_syncstage: {
+          options: { stdout: true },
+          command: 'python scripts/configure.py --web_url syncstage'
+      },
+
       configure_local: {
           options: { stdout: true },
           command: 'python scripts/configure.py --web_url local'
@@ -52,6 +57,7 @@ module.exports = function(grunt) {
   grunt.registerTask('package_release', ['shell:configure_release', 'compress']);
   grunt.registerTask('package_staging', ['shell:configure_staging', 'compress']);
   grunt.registerTask('package_dev', ['shell:configure_dev', 'compress']);
+  grunt.registerTask('package_syncstage', ['shell:configure_syncstage', 'compress']);
   grunt.registerTask('package_local', ['shell:configure_local']);
   grunt.registerTask('configure_test', ['shell:configure_test']);
 
