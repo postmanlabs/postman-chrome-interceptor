@@ -18,6 +18,13 @@
     "page": "background.html",
     "persistent": true
   },
-  "permissions": ["webRequest", "webRequestBlocking", "cookies", "http://*/*", "https://*/*"],
+  "permissions": [
+    "webRequest", 
+    "webRequestBlocking", 
+    "cookies", 
+    "http://*/*", 
+    "https://*/*",
+    "contextMenus"
+  ],
   "manifest_version": 2
 }

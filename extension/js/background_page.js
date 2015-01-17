@@ -190,7 +190,7 @@ function sendResponseToPostman(response, cookies) {
 			"postmanMessage": {
 				"guid": guid,
 				//"type": "xhrResponse",
-        "type": postmanMessageTypes.xhrResponse,
+        		"type": postmanMessageTypes.xhrResponse,
 				"response": response,
 				"cookies": cookies
 			}			
@@ -629,3 +629,23 @@ chrome.webRequest.onSendHeaders.addListener(onSendHeaders,
     { urls: ["<all_urls>"] }, 
     [ "requestHeaders" ]
 );
+
+//creates a context menu link to import curl
+chrome.contextMenus.create({
+    "title": "Import CURL in Postman",
+    "contexts": ["selection"],
+    "onclick" : function(a,b) {
+ 		var selection = a.selectionText;
+ 		sendToPostman(selection);
+    }
+});
+
+var sendToPostman = function(selection) {
+	var message =  {
+			"curlImportMessage": {
+            "curlText": selection
+        }
+    };
+
+    chrome.runtime.sendMessage(postmanAppId, message, function(extResponse) {});
+}
