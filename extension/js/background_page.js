@@ -641,10 +641,12 @@ chrome.contextMenus.create({
 });
 
 var sendToPostman = function(selection) {
+	if(!selection) return;
+
 	var message =  {
 			"curlImportMessage": {
-            "curlText": selection
-        }
+            	"curlText": selection.trim();
+        	}
     };
 
     chrome.runtime.sendMessage(postmanAppId, message, function(extResponse) {});
