@@ -478,6 +478,7 @@ function onBeforeRequest(details) {
   //if (filterCapturedRequest(details)) {
   if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     requestCache[details.requestId] = details;
+    console.log("Request " + details.requestId+" added to cache");
   }
 }
 
@@ -491,15 +492,24 @@ function isPostmanRequest(request) {
 
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
+  console.log("Checking headers for request: " + details.requestId);
+  console.log(requestCache);
   if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
-    if (details.requestId in requestCache) {
+    if (requestCache.hasOwnProperty(details.requestId)) {
       var req = requestCache[details.requestId];
       req.requestHeaders = details.requestHeaders;
       sendCapturedRequestToPostman(details.requestId);
     } else {
       console.log("Error - Key not found ", details.requestId, details.method, details.url);
+      console.log(requestCache);
     }
   }
+}
+
+function isMethodWithBody(method) {
+    var methodsWithBody = ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK", "LOCK", "PROPFIND"];
+    method = method.toUpperCase();
+    return methodsWithBody.indexOf(method)!==-1;
 }
 
 // sends the captured request to postman with id as reqId (using the requestCache)
@@ -508,11 +518,11 @@ function sendCapturedRequestToPostman(reqId){
   var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">" + requestCache[reqId].method + "</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
 
   var request = requestCache[reqId];
-  var isPost = request.method === "POST";
+  var methodWithBody = isMethodWithBody(request.method);
   var requestBodyType;
   var rawEncodedData;
 
-  if (isPost && request.requestBody) {
+  if (methodWithBody && request.requestBody) {
     requestBodyType = _.has(request.requestBody, 'formData') ? 'formData' : 'rawData';
     request.requestBodyType = requestBodyType;
 
@@ -645,7 +655,7 @@ var sendToPostman = function(selection) {
 
 	var message =  {
 			"curlImportMessage": {
-            	"curlText": selection.trim();
+            	"curlText": selection.trim()
         	}
     };
 
