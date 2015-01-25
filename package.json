@@ -1,6 +1,6 @@
 {
   "name": "PostmanInterceptor",
-  "version": "0.2.0",
+  "version": "0.2.8",
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-handlebars": "~0.5.6",
