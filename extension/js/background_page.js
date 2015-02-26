@@ -438,7 +438,7 @@ function onBeforeSendHeaders(details) {
 			requestHeaders.push(newHeaders[k]);
 		}
 
-		//delete requestCache[details.requestId];
+		delete requestCache[details.requestId];
 	}	
 
 	return {requestHeaders: requestHeaders};
@@ -612,7 +612,7 @@ function sendCapturedRequestToPostman(reqId){
       function response(resp) {
           console.log("Request sent to postman for request:", reqId);
           sendCapturedRequestToFrontend(loggerMsg);
-          //delete requestCache[reqId];
+          delete requestCache[reqId];
       }
   );
 }
