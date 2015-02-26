@@ -29,6 +29,10 @@ var toAddHeaders = false;
 
 var background = this;
 
+var followRedirect = true;
+var sendNextResponseToPostman = true;
+var redirectUrlToBlock = "";
+
 // Options which are shared with Extension Popup.
 var appOptions = {
 	isCaptureStateEnabled: false,
@@ -264,6 +268,11 @@ function sendXhrRequest(request) {
 	// Call back function when XHR is loaded - calls sendResponseToPostman with response 
 	// and cookies
 	function onXhrLoad() {
+		if(sendNextResponseToPostman === false && (queue.length==0 || redirectUrlToBlock===queue[0].postmanMessage.request.url)) {
+			sendNextResponseToPostman = true;
+			return;
+		}
+
 		toAddHeaders = false;
 
 		var r = this;
@@ -429,7 +438,7 @@ function onBeforeSendHeaders(details) {
 			requestHeaders.push(newHeaders[k]);
 		}
 
-		delete requestCache[details.requestId];
+		//delete requestCache[details.requestId];
 	}	
 
 	return {requestHeaders: requestHeaders};
@@ -454,6 +463,10 @@ function onExternalMessage(request, sender, sendResponse) {
     else if (request.postmanMessage) {
       sendResponse({"result":"Ok, got your message"});
       var type = request.postmanMessage.type;
+      if(request.postmanMessage.hasOwnProperty("autoRedirect")) {
+   	  	followRedirect = request.postmanMessage.autoRedirect;
+  	  }
+
       if (type === "xhrRequest") {
         addToQueue(request);
       }
@@ -471,6 +484,53 @@ function filterCapturedRequest(request) {
     var patt = new RegExp(appOptions.filterRequestUrl, "gi");
     var validRequestTypes = ["xmlhttprequest", "main_frame", "sub_frame"];
     return (_.contains(validRequestTypes, request.type) && request.url.match(patt))
+}
+
+//
+function onBeforeRedirect(details) {
+	//if followRedirects = false
+	//send this response to Postman
+	//set request.sendResponse for this request in cache to fals
+	if(followRedirect === false) {
+		var responseForPostman = convertRedirectResponse(details);
+		sendNextResponseToPostman = false;
+		redirectUrlToBlock = details.url;
+		chrome.cookies.getAll({url:details.url}, function (cookies) {
+			console.log("Sending redirect response to Postman", responseForPostman);
+            sendResponseToPostman(responseForPostman, cookies);
+            followRedirect = true;
+        });
+	}
+}
+
+function getHeadersObjectAndStringFromArray(headerArray) {
+	var numHeaders = headerArray.length;
+	var rawHeaders = "";
+	var headers = {};
+	for(var i=0;i<numHeaders;i++) {
+		rawHeaders += headerArray[i].name+": "+headerArray[i].value+"\n";
+		headers[headerArray[i].name] = headerArray[i].value;
+	}
+	return {
+		"raw": rawHeaders,
+		"obj": headers
+	};
+}
+
+function convertRedirectResponse(details) {
+	var headerTypes = getHeadersObjectAndStringFromArray(details.responseHeaders);
+	var response = {
+		headers: headerTypes.obj,
+		rawHeaders: headerTypes.raw,
+		readyState: 4,
+		response: "",
+		responseText: "",
+		status: details.statusCode,
+		statusText: details.statusLine.split(" ").slice(2).join(" "), //or take from a map
+		timeout: 0,
+		withCredentials: false
+	};
+	return response;
 }
 
 // for filtered requests sets a key in requestCache
@@ -552,7 +612,7 @@ function sendCapturedRequestToPostman(reqId){
       function response(resp) {
           console.log("Request sent to postman for request:", reqId);
           sendCapturedRequestToFrontend(loggerMsg);
-          delete requestCache[reqId];
+          //delete requestCache[reqId];
       }
   );
 }
@@ -632,6 +692,11 @@ chrome.runtime.onMessageExternal.addListener(onExternalMessage);
 chrome.webRequest.onBeforeRequest.addListener(onBeforeRequest, 
     { urls: ["<all_urls>"] }, 
     [ "requestBody" ]
+);
+
+chrome.webRequest.onBeforeRedirect.addListener(onBeforeRedirect, 
+    { urls: ["<all_urls>"] }, 
+    [ "responseHeaders" ]
 );
 
 //event listener called just before sending - used for getting headers
