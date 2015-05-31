@@ -4,4 +4,4 @@ var POSTMAN_APP_ID_DEV = "aglpidefogoeiamaehklpfoafichfmdk";
 var POSTMAN_APP_ID_SYNCSTAGE = "loddepljkabcghihdkbkfknabkinanff";
 var POSTMAN_APP_ID_LOCAL = "ncnklfmibdifliimhgejlpjdhkdhhado";//"aglpidefogoeiamaehklpfoafichfmdk";
 
-var postmanAppId = POSTMAN_APP_ID_LOCAL;
+var postmanAppId = POSTMAN_APP_ID_PRODUCTION;

@@ -156,17 +156,24 @@ function getFormData(body) {
 // sends any errors to postman encountered when XHR was loaded
 function sendErrorToPostman(error) {
 	var guid = queue[0].postmanMessage.guid;
+	
+	var customAppId = queue[0].postmanMessage.postmanAppId;
+	if(!customAppId) {
+		customAppId = postmanAppId;
+	}
+	
 	queue.splice(0, 1);
 
 	//console.log(queue);
 
+
 	chrome.runtime.sendMessage(
-		postmanAppId, 
+		customAppId, 
 		{	
 			"postmanMessage": {
 				"guid": guid,
 				//"type": "xhrError",
-        "type": postmanMessageTypes.xhrError,
+        		"type": postmanMessageTypes.xhrError,
 				"error": error
 			}			
 		}, 
@@ -184,12 +191,18 @@ function sendErrorToPostman(error) {
 // also triggers the XHR for the next item in the QUEUE
 function sendResponseToPostman(response, cookies) {
 	var guid = queue[0].postmanMessage.guid;
+
+	var customAppId = queue[0].postmanMessage.postmanAppId;
+	if(!customAppId) {
+		customAppId = postmanAppId;
+	}
+	
 	queue.splice(0, 1);	
 
 	//console.log("QUEUE", queue);
 
 	chrome.runtime.sendMessage(
-		postmanAppId, 
+		customAppId, 
 		{	
 			"postmanMessage": {
 				"guid": guid,
