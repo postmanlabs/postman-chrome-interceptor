@@ -360,7 +360,13 @@ function sendXhrRequest(request) {
 		if(headers[i].enabled === false) {
 			continue;
 		}
-	    xhr.setRequestHeader(headers[i].name, headers[i].value);
+		try {
+	    	xhr.setRequestHeader(headers[i].name, headers[i].value);
+	    }
+	    catch(e) {
+	    	console.error(e);
+	    	console.log("Continuing after header failure");
+	    }
 	}
 
 	toAddHeaders = true;
