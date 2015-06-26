@@ -361,12 +361,12 @@ function sendXhrRequest(request) {
 			continue;
 		}
 		try {
-	    	xhr.setRequestHeader(headers[i].name, headers[i].value);
-	    }
-	    catch(e) {
-	    	console.error(e);
-	    	console.log("Continuing after header failure");
-	    }
+			xhr.setRequestHeader(headers[i].name, headers[i].value);
+		}
+		catch(e) {
+			console.error(e);
+			console.log("Continuing after header failure");
+		}
 	}
 
 	toAddHeaders = true;
