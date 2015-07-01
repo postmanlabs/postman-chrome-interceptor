@@ -228,12 +228,12 @@ function setCookiesFromHeader(cookieHeader, url) {
 	var retVal = [];
 	for(var i=0;i<numCookies;i++) {
 		var thisCookie = cookies[i].trim().split("=");
-		if(thisCookie.length>1) {
+		if(thisCookie.length>=1) {
 			//Added this to allow cookie values to have '='
 			//Zendesk 1344
 			try {
-				var cName = thisCookie.splice(0,1)[0];
-				var cValue = thisCookie.join("=");
+				var cName = thisCookie.splice(0,1)[0]; //this is the part before the first =
+				var cValue = thisCookie.join("="); //part after the first =
 				chrome.cookies.set({
 					url: url,
 					name: cName,
