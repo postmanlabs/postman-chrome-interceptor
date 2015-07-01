@@ -228,11 +228,22 @@ function setCookiesFromHeader(cookieHeader, url) {
 	var retVal = [];
 	for(var i=0;i<numCookies;i++) {
 		var thisCookie = cookies[i].trim().split("=");
-		chrome.cookies.set({
-			url: url,
-			name: thisCookie[0],
-			value: thisCookie[1]
-		});
+		if(thisCookie.length>1) {
+			//Added this to allow cookie values to have '='
+			//Zendesk 1344
+			try {
+				var cName = thisCookie.splice(0,1)[0];
+				var cValue = thisCookie.join("=");
+				chrome.cookies.set({
+					url: url,
+					name: cName,
+					value: cValue
+				});
+			}
+			catch(e) {
+				console.log("Error setting cookie: " + e);
+			}
+		}
 	}
 }
 
