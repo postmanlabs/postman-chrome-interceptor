@@ -131,6 +131,9 @@ function getFormData(body) {
 		if (body[i].enabled === false) {
 			continue;
 		}
+		if(!body[i].hasOwnProperty("name") && body[i].hasOwnProperty("key")) {
+			body[i].name = body[i].key;
+		}
 		if (body[i].type === "text") {
 			paramsBodyData.append(body[i].name, body[i].value);
 		}
