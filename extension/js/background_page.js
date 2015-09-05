@@ -325,7 +325,8 @@ function sendXhrRequest(request) {
 
 			//console.log("Received arraybuffer response", response);
 		}
-		else {			
+		else {
+			//if contenttype is image, there's no need to send the request again, with contenttype=arraybuffer
 			response = {
 				"readyState": this.readyState,
 				"response": this.response,
