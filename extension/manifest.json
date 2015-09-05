@@ -1,6 +1,6 @@
 {
   "name": "Postman Interceptor",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Sends requests fired through the Postman chrome app.",
   "icons":{
       "16":"icon_16.png",
