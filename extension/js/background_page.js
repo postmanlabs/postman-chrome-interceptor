@@ -325,26 +325,19 @@ function sendXhrRequest(request) {
 
 			//console.log("Received arraybuffer response", response);
 		}
-		else {
-			if (isContentTypeImage(unpackedHeaders)) {
-				toGetCookies = false;
-				request.responseType = "arraybuffer";
-				sendXhrRequest(request);
-			}
-			else {				
-				response = {
-					"readyState": this.readyState,
-					"response": this.response,
-					"responseText": this.responseText,
-					"responseType": this.responseType,
-					"status": this.status,
-					"statusText": this.statusText,
-					"timeout": this.timeout,
-					"withCredentials": this.withCredentials,
-					"rawHeaders": rawHeaders,
-					"headers": unpackedHeaders
-				};
-			}			
+		else {			
+			response = {
+				"readyState": this.readyState,
+				"response": this.response,
+				"responseText": this.responseText,
+				"responseType": this.responseType,
+				"status": this.status,
+				"statusText": this.statusText,
+				"timeout": this.timeout,
+				"withCredentials": this.withCredentials,
+				"rawHeaders": rawHeaders,
+				"headers": unpackedHeaders
+			};
 		}
 
 		if (toGetCookies) {
