@@ -149,7 +149,12 @@ function getFormData(body) {
 
 			var blobs = new Blob(buffers);			
 			paramsBodyData.append(body[i].name, blobs, fileName);
-		}		
+		}
+		else {
+			//no type specified
+			//assume text
+			paramsBodyData.append(body[i].name, body[i].value);
+		}
 
 	}
 
