@@ -599,7 +599,7 @@ function onSendHeaders(details) {
 }
 
 function isMethodWithBody(method) {
-    var methodsWithBody = ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK", "LOCK", "PROPFIND"];
+    var methodsWithBody = ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK", "LOCK", "PROPFIND", "OPTIONS"];
     method = method.toUpperCase();
     return methodsWithBody.indexOf(method)!==-1;
 }
