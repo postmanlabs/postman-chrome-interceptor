@@ -8,7 +8,6 @@
       "48":"icon_48.png",
       "128":"icon_128.png"
   },
-  "devtools_page": "devtools.html",
   "browser_action": {
     "default_title": "Send XHR requests fired from Postman",
     "default_icon": "icon_16.png",
