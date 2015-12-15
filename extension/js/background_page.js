@@ -147,7 +147,15 @@ function getFormData(body) {
 				buffers.push(newBuffer);
 			}
 
-			var blobs = new Blob(buffers);			
+			//Zendesk 2322 - Interceptor not respecting mime types of files
+			var blobs = null;
+			if(body[i].hasOwnProperty("mimeType")) {
+				blobs = new Blob(buffers, {type: body[i].mimeType});
+			}
+			else {
+				blobs = new Blob(buffers);
+			}
+
 			paramsBodyData.append(body[i].name, blobs, fileName);
 		}
 		else {
