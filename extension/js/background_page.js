@@ -1,3 +1,7 @@
+//TODO:
+//chrome.management.get("fhbjgbiflinjbdggehcddcbncdddomop", function(a) {console.log(a)})
+//chrome.management.launchApp("fhbjgbiflinjbdggehcddcbncdddomop", function(a) {console.log(a)}) to open the app
+
 var blacklistedIds = ["none"];
 var currentRequest;
 var cookies;
@@ -61,6 +65,33 @@ var restrictedChromeHeaders = [
     "USER-AGENT",
     "VIA"
 ];
+
+var postmanCheckTimeout = null;
+
+setInterval(function() {
+	var isPostmanOpen = true;
+	clearTimeout(postmanCheckTimeout);
+	chrome.runtime.sendMessage(postmanAppId, {}, function (extResponse) {
+		clearTimeout(postmanCheckTimeout);
+		if(typeof extResponse === "undefined") {
+			//Postman is not open
+			isPostmanOpen = false;
+		}
+		setPostmanOpenStatus(isPostmanOpen);
+	});
+	postmanCheckTimeout = setTimeout(function() {
+		setPostmanOpenStatus(isPostmanOpen);
+	}, 1000);
+}, 3000);
+
+function setPostmanOpenStatus(isOpen) {
+	if(isOpen) {
+		console.log("Postman is open");
+	}
+	else {
+		console.log("Postman is not open");
+	}
+}
 
 function setBlueIcon() {
 	chrome.browserAction.setIcon({path:'interceptor_48x48_blue.png'});
