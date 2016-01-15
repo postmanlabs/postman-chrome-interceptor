@@ -62,6 +62,14 @@ var restrictedChromeHeaders = [
     "VIA"
 ];
 
+function setBlueIcon() {
+	chrome.browserAction.setIcon({path:'interceptor_48x48_blue.png'});
+}
+
+function setOrangeIcon() {
+	chrome.browserAction.setIcon({path:'interceptor_48x48.png'});
+}
+
 function getBase64FromArrayBuffer(responseData) {
     var uInt8Array = new Uint8Array(responseData);
     var i = uInt8Array.length;
@@ -582,8 +590,8 @@ function isPostmanRequest(request) {
 
 // for filtered requests it sets the headers on the request in requestcache
 function onSendHeaders(details) {
-  console.log("Checking headers for request: " + details.requestId);
-  console.log(requestCache);
+  //console.log("Checking headers for request: " + details.requestId);
+  //console.log(requestCache);
   if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     if (requestCache.hasOwnProperty(details.requestId)) {
       var req = requestCache[details.requestId];
@@ -692,6 +700,13 @@ chrome.runtime.onConnect.addListener(function(port){
           appOptions.filterRequestUrl = ".*";
       } else {
           appOptions.filterRequestUrl = msg.options.filterRequestUrl || appOptions.filterRequestUrl;
+      }
+
+      if(appOptions.isCaptureStateEnabled) {
+      	setBlueIcon();
+      }
+      else {
+      	setOrangeIcon();
       }
     }
     if(msg.reset) {

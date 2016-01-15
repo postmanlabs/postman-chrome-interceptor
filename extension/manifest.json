@@ -3,15 +3,15 @@
   "version": "0.2.10",
   "description": "Sends requests fired through the Postman chrome app.",
   "icons":{
-      "16":"icon_16.png",
-      "32":"icon_32.png",
-      "48":"icon_48.png",
-      "128":"icon_128.png"
+      "16":"interceptor_16x16.png",
+      "32":"interceptor_32x32.png",
+      "48":"interceptor_48x48.png",
+      "128":"interceptor_128x128.png"
   },
   "devtools_page": "devtools.html",
   "browser_action": {
     "default_title": "Send XHR requests fired from Postman",
-    "default_icon": "icon_16.png",
+    "default_icon": "interceptor_48x48.png",
     "default_popup": "index.html"
   },
   "background": {
