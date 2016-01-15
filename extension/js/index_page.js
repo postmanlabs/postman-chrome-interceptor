@@ -4,6 +4,7 @@ var filterUrlInput = document.getElementById('filterRequest');
 var deleteBtn = document.getElementById('delete-log');
 var tickIcon = document.getElementById('tick-icon');
 var filteredRequests = document.getElementById('filtered-requests');
+var isPostmanOpenMessage = document.getElementById('postman-not-open');
 
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
@@ -20,6 +21,9 @@ var appOptions = {
   filterRequestUrl: '.*'
 }
 
+var isPostmanOpen = true;
+isPostmanOpenMessage.style.display = "none";
+
 // long-lived connection to the background channel 
 chrome.runtime.onConnect.addListener(function(port){
   console.assert(port.name === 'BACKGROUNDCHANNEL');
@@ -33,9 +37,26 @@ chrome.runtime.onConnect.addListener(function(port){
 
       console.log("Received message options", msg.options);
     }
+    if(msg.isPostmanOpen===true) {
+      isPostmanOpen = true;
+    }
+    else if(msg.isPostmanOpen === false) { 
+      isPostmanOpen = false;
+    }
+    setPostmanMessage();
   });
 
 });
+
+
+function setPostmanMessage() {
+  if(isPostmanOpen) {
+    isPostmanOpenMessage.style.display = "none";
+  }
+  else {
+    isPostmanOpenMessage.style.display = "block";
+  }
+}
 
 // takes an array of log messages and appends in the container
 // items is of Deque type
@@ -66,7 +87,7 @@ function setOptions(options) {
   else {
     filteredRequests.className = 'hide';
   }
-
+ 
   toggleSwitch.checked = appOptions.toggleSwitchState = options.isCaptureStateEnabled;
   filterUrlInput.value = options.filterRequestUrl;        
 

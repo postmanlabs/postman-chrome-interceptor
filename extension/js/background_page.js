@@ -67,9 +67,8 @@ var restrictedChromeHeaders = [
 ];
 
 var postmanCheckTimeout = null;
-
+var isPostmanOpen = true;
 setInterval(function() {
-	var isPostmanOpen = true;
 	clearTimeout(postmanCheckTimeout);
 	chrome.runtime.sendMessage(postmanAppId, {}, function (extResponse) {
 		clearTimeout(postmanCheckTimeout);
@@ -80,16 +79,19 @@ setInterval(function() {
 		setPostmanOpenStatus(isPostmanOpen);
 	});
 	postmanCheckTimeout = setTimeout(function() {
+		isPostmanOpen = true;
 		setPostmanOpenStatus(isPostmanOpen);
-	}, 1000);
-}, 3000);
+	}, 300);
+}, 1000);
 
 function setPostmanOpenStatus(isOpen) {
 	if(isOpen) {
 		console.log("Postman is open");
+		popupConnected && BackgroundPort.postMessage({isPostmanOpen: true});
 	}
 	else {
 		console.log("Postman is not open");
+		popupConnected && BackgroundPort.postMessage({isPostmanOpen: false});
 	}
 }
 
@@ -747,6 +749,8 @@ chrome.runtime.onConnect.addListener(function(port){
 
   BackgroundPort.postMessage({options: appOptions});
   BackgroundPort.postMessage({logcache: logCache});
+  console.log("Sending isPostman Open: " , isPostmanOpen);
+  BackgroundPort.postMessage({isPostmanOpen: isPostmanOpen});
 
   // when the popup has been turned off - no longer send messages
   port.onDisconnect.addListener(function(){
