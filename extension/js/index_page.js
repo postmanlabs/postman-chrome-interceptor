@@ -1,6 +1,7 @@
 // DOM elements in popup
-var toggleSwitch = document.getElementById('postManSwitch');
+var toggleSwitch = document.getElementById('myonoffswitch');
 var filterUrlInput = document.getElementById('filterRequest');
+var filterUrlConfirm = document.getElementById('apply-filter');
 var deleteBtn = document.getElementById('delete-log');
 var tickIcon = document.getElementById('tick-icon');
 var filteredRequests = document.getElementById('filtered-requests');
@@ -77,7 +78,7 @@ function setTickIconVisibility() {
 
     setInterval(function() {
       tickIcon.className = "hide";
-    }, 1000);    
+    }, 2000);    
 }
 
 function setOptions(options) {
@@ -110,16 +111,13 @@ toggleSwitch.addEventListener('click', function() {
 
 var wait;
 
-filterUrlInput.addEventListener('input', function() {
-    clearTimeout(wait);
-    wait = setTimeout(function() {
-      var domain = filterUrlInput.value;
-      appOptions.filterRequestUrl = filterUrlInput.value;
-      setTickIconVisibility();
-      popupPort.postMessage({options: appOptions});      
-    }, 500);
 
-}, false);
+filterUrlConfirm.addEventListener('click', function() {
+  var domain = filterUrlInput.value;
+  appOptions.filterRequestUrl = filterUrlInput.value;
+  setTickIconVisibility();
+  popupPort.postMessage({options: appOptions});      
+});
 
 deleteBtn.addEventListener('click', function() {
     loggerList.innerHTML = "";

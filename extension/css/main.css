@@ -7,13 +7,62 @@ body {
 	font-family: Helvetica, Arial, sans-serif;
 	color: #333;
 	width: 300px;	
-	padding: 5px;
+}
+
+.main-wrapper {
+  padding: 5px;
+}
+
+.main-warning-label-wrapper {
+  width: 100%;
+  font-size: 14px;
+  background-color: #fcf8e3;
+  color: #c09853;
+  padding: 5px 0 5px 0;
+}
+
+.main-warning-label {
+  width: 94%;
+  margin-left: 3%;
+}
+
+.warning-link {
+  color: #c09853 !important;
+  text-decoration: underline;
 }
 
 label {
 	position: relative;
 	right: 50px;
   margin: 20px 0 20px 0;
+}
+
+/* big orange heading  - Postman Interceptor */
+h3 {
+  color: #f15a24;
+  font-size: 16px;
+}
+
+h4 {
+  color: #4a90e2;
+  font-size: 16px;
+}
+
+.btn {
+    background-color: #F0F0F0;
+    color: #808080;
+    border-radius: 3px;
+    height: 36px;
+    padding: 0 10px 0 10px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: normal;
+    font-family: "OpenSans", Helvetica, Arial, sans-serif;
+    cursor: default;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    border: 0px;
 }
 
 .label { display: inline;
@@ -66,10 +115,6 @@ label {
     }
 }
 
-h4 {
-	margin: 0;
-	padding: 5px;
-}
 
 p {
 	font-size: 12px;

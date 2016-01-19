@@ -4,31 +4,41 @@
 	<meta charset="utf-8">
 	<link href="css/main.css" rel="stylesheet">
 	<link href="css/toggle-switch.css" rel="stylesheet">	
+	<link href="css/onoffswitch.css" rel="stylesheet">	
 </head>
 <body>
-	<h3 id="postman-not-open">Postman is not open</h3>
-	<h4>Postman Interceptor</h4>	
-	<p>Postman Interceptor lets you capture requests and send them to Postman</p>
+	<div class="main-warning-label-wrapper" id="postman-not-open">
+		<div class="main-warning-label">
+			Not connected. Check that the <a href="https://chrome.google.com/webstore/detail/postman-rest-client-packa/fhbjgbiflinjbdggehcddcbncdddomop?hl=en" target="_blank" class="warning-link">Postman app</a> is open.
+		</div>
+	</div>
+	<div class="main-wrapper">
+		<h3>Postman Interceptor</h3>	
+		<p>Postman Interceptor lets you capture requests and send them to Postman</p>
+		<br>
+		<h4>Request Capture</h4>	
+		<p>Captured requests will show up inside Postman's history</p>
 
-	<h5>Request capture</h5>
-	<p>Captured requests will show up inside Postman's history</p>
-	<label class="switch-light switch-android">
-		<input id="postManSwitch" type="checkbox">
-		<span>
-			<span>Off</span>
-			<span>On</span>
-		</span>
-		<a></a>
-	</label>
 
-	<div id="filtered-requests">
-		<h5>Filter requests</h5>
-		<input type="text" id="filterRequest" placeholder="filter by domain" value=".*">
-		<span class="label-success" id="tick-icon">Saved</span>    
-	    
-		<div class="logger-area">
-	        <h5>Last 10 requests</h5>		
-	        <ol id="logger"></ol>
+		<div class="onoffswitch">
+		    <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch">
+		    <label class="onoffswitch-label" for="myonoffswitch">
+		        <span class="onoffswitch-inner"></span>
+		        <span class="onoffswitch-switch"></span>
+		    </label>
+		</div>
+
+		<div id="filtered-requests">
+			<h5>Filter requests</h5>
+			<input type="text" id="filterRequest" placeholder="filter by domain" value=".*">
+			<button id="apply-filter" class="btn">Apply filter</button>
+
+			<span class="label-success" id="tick-icon">Saved</span>    
+		    
+			<div class="logger-area">
+		        <h5>Last 10 requests</h5>		
+		        <ol id="logger"></ol>
+			</div>
 		</div>
 	</div>
 	<script src="lib/underscore-min.js"></script>
