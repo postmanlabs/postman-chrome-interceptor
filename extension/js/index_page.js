@@ -6,6 +6,7 @@ var deleteBtn = document.getElementById('delete-log');
 var tickIcon = document.getElementById('tick-icon');
 var filteredRequests = document.getElementById('filtered-requests');
 var isPostmanOpenMessage = document.getElementById('postman-not-open');
+var isPostmanEnabledMessage = document.getElementById('postman-not-enabled');
 
 // this port is available as soon as popup is opened
 var popupPort = chrome.runtime.connect({name: 'POPUPCHANNEL'});
@@ -43,6 +44,13 @@ chrome.runtime.onConnect.addListener(function(port){
     }
     else if(msg.isPostmanOpen === false) { 
       isPostmanOpen = false;
+    }
+
+    if(msg.isPostmanEnabledWarning === true) {
+      isPostmanEnabledMessage.style.display = "block";
+    }
+    else if(msg.isPostmanEnabledWarning === false) {
+      isPostmanEnabledMessage.style.display = "none";
     }
     setPostmanMessage();
   });
@@ -117,10 +125,5 @@ filterUrlConfirm.addEventListener('click', function() {
   appOptions.filterRequestUrl = filterUrlInput.value;
   setTickIconVisibility();
   popupPort.postMessage({options: appOptions});      
-});
-
-deleteBtn.addEventListener('click', function() {
-    loggerList.innerHTML = "";
-    popupPort.postMessage({reset: "logCache"});
 });
 

@@ -86,11 +86,9 @@ setInterval(function() {
 
 function setPostmanOpenStatus(isOpen) {
 	if(isOpen) {
-		console.log("Postman is open");
 		popupConnected && BackgroundPort.postMessage({isPostmanOpen: true});
 	}
 	else {
-		console.log("Postman is not open");
 		popupConnected && BackgroundPort.postMessage({isPostmanOpen: false});
 	}
 }
@@ -681,6 +679,10 @@ function sendCapturedRequestToPostman(reqId){
     }
   }
 
+  var requestNotReceived = setTimeout(function() {
+  	showPostmanNotEnabledWarning();
+  }, 500);
+
   chrome.runtime.sendMessage(
       postmanAppId,
       {
@@ -694,8 +696,22 @@ function sendCapturedRequestToPostman(reqId){
           console.log("Request sent to postman for request:", reqId);
           sendCapturedRequestToFrontend(loggerMsg);
           delete requestCache[reqId];
+          clearTimeout(requestNotReceived);
+          hidePostmanNotEnabledWarning();
       }
   );
+}
+
+function showPostmanNotEnabledWarning() {
+  if (popupConnected) {
+    BackgroundPort.postMessage({isPostmanEnabledWarning: true});
+  }
+}
+
+function hidePostmanNotEnabledWarning() {
+  if (popupConnected) {
+    BackgroundPort.postMessage({isPostmanEnabledWarning: false});
+  }
 }
 
 // sends the captured request to popup.html
