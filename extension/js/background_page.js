@@ -68,21 +68,22 @@ var restrictedChromeHeaders = [
 
 var postmanCheckTimeout = null;
 var isPostmanOpen = true;
-setInterval(function() {
-	clearTimeout(postmanCheckTimeout);
-	chrome.runtime.sendMessage(postmanAppId, {}, function (extResponse) {
-		clearTimeout(postmanCheckTimeout);
-		if(typeof extResponse === "undefined") {
-			//Postman is not open
-			isPostmanOpen = false;
-		}
-		setPostmanOpenStatus(isPostmanOpen);
-	});
-	postmanCheckTimeout = setTimeout(function() {
-		isPostmanOpen = true;
-		setPostmanOpenStatus(isPostmanOpen);
-	}, 300);
-}, 1000);
+// //Causes the collection runner to treat this as an actual response :(
+// setInterval(function() {
+// 	clearTimeout(postmanCheckTimeout);
+// 	chrome.runtime.sendMessage(postmanAppId, {}, function (extResponse) {
+// 		clearTimeout(postmanCheckTimeout);
+// 		if(typeof extResponse === "undefined") {
+// 			//Postman is not open
+// 			isPostmanOpen = false;
+// 		}
+// 		setPostmanOpenStatus(isPostmanOpen);
+// 	});
+// 	postmanCheckTimeout = setTimeout(function() {
+// 		isPostmanOpen = true;
+// 		setPostmanOpenStatus(isPostmanOpen);
+// 	}, 300);
+// }, 2000);
 
 function setPostmanOpenStatus(isOpen) {
 	if(isOpen) {

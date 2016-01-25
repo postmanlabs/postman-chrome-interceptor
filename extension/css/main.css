@@ -24,6 +24,7 @@ body {
 .main-warning-label {
   width: 94%;
   margin-left: 3%;
+  display: none;
 }
 
 .warning-link {
