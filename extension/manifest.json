@@ -1,6 +1,6 @@
 {
   "name": "Postman Interceptor",
-  "version": "0.2.10",
+  "version": "0.2.14",
   "description": "Sends requests fired through the Postman chrome app.",
   "icons":{
       "16":"interceptor_16x16.png",
@@ -8,7 +8,6 @@
       "48":"interceptor_48x48.png",
       "128":"interceptor_128x128.png"
   },
-  "devtools_page": "devtools.html",
   "browser_action": {
     "default_title": "Send XHR requests fired from Postman",
     "default_icon": "interceptor_48x48.png",

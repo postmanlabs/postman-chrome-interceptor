@@ -172,6 +172,9 @@ function getFormData(body) {
 		if (body[i].enabled === false) {
 			continue;
 		}
+		if(!body[i].hasOwnProperty("name") && body[i].hasOwnProperty("key")) {
+			body[i].name = body[i].key;
+		}
 		if (body[i].type === "text") {
 			paramsBodyData.append(body[i].name, body[i].value);
 		}
@@ -185,9 +188,22 @@ function getFormData(body) {
 				buffers.push(newBuffer);
 			}
 
-			var blobs = new Blob(buffers);			
+			//Zendesk 2322 - Interceptor not respecting mime types of files
+			var blobs = null;
+			if(body[i].hasOwnProperty("mimeType")) {
+				blobs = new Blob(buffers, {type: body[i].mimeType});
+			}
+			else {
+				blobs = new Blob(buffers);
+			}
+
 			paramsBodyData.append(body[i].name, blobs, fileName);
-		}		
+		}
+		else {
+			//no type specified
+			//assume text
+			paramsBodyData.append(body[i].name, body[i].value);
+		}
 
 	}
 
@@ -364,25 +380,19 @@ function sendXhrRequest(request) {
 			//console.log("Received arraybuffer response", response);
 		}
 		else {
-			if (isContentTypeImage(unpackedHeaders)) {
-				toGetCookies = false;
-				request.responseType = "arraybuffer";
-				sendXhrRequest(request);
-			}
-			else {				
-				response = {
-					"readyState": this.readyState,
-					"response": this.response,
-					"responseText": this.responseText,
-					"responseType": this.responseType,
-					"status": this.status,
-					"statusText": this.statusText,
-					"timeout": this.timeout,
-					"withCredentials": this.withCredentials,
-					"rawHeaders": rawHeaders,
-					"headers": unpackedHeaders
-				};
-			}			
+			//if contenttype is image, there's no need to send the request again, with contenttype=arraybuffer
+			response = {
+				"readyState": this.readyState,
+				"response": this.response,
+				"responseText": this.responseText,
+				"responseType": this.responseType,
+				"status": this.status,
+				"statusText": this.statusText,
+				"timeout": this.timeout,
+				"withCredentials": this.withCredentials,
+				"rawHeaders": rawHeaders,
+				"headers": unpackedHeaders
+			};
 		}
 
 		if (toGetCookies) {
@@ -638,7 +648,7 @@ function onSendHeaders(details) {
 }
 
 function isMethodWithBody(method) {
-    var methodsWithBody = ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK", "LOCK", "PROPFIND"];
+    var methodsWithBody = ["POST", "PUT", "PATCH", "DELETE", "LINK", "UNLINK", "LOCK", "PROPFIND", "OPTIONS"];
     method = method.toUpperCase();
     return methodsWithBody.indexOf(method)!==-1;
 }
