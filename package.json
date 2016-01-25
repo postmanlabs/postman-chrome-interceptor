@@ -1,6 +1,6 @@
 {
   "name": "postman-chrome-interceptor",
-  "version": "0.2.8",
+  "version": "0.2.16",
   "description": "Capture requests from any website within Chrome and send them to Postman Client",
   "directories": {
     "test": "tests"
