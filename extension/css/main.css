@@ -6,7 +6,7 @@
 body {
 	font-family: Helvetica, Arial, sans-serif;
 	color: #333;
-	width: 300px;	
+	width: 200px;	
 }
 
 .main-wrapper {
@@ -101,7 +101,7 @@ h4 {
 
 #filterRequest {
 	margin: 2px 0 10px 5px;
-	width: 200px;
+	width: 150px;
 	color: #222222;
 	border-radius: 3px;
     border: none;
@@ -121,6 +121,7 @@ p {
 	font-size: 12px;
 	margin-top: 0;
 	padding: 5px;
+  padding-left: 0px;
   margin-bottom: 0px;
 }
 
@@ -139,7 +140,7 @@ ol li {
   margin-bottom: 3px;
   line-height: 1.3em;
   padding: 3px 6px; 
-  width: 280px;
+  width: 180px;
   border-bottom: 1px solid #eee;
   text-overflow: ellipsis;
   white-space: pre; /* CSS 2.0 */
