@@ -9,6 +9,10 @@ body {
 	width: 200px;	
 }
 
+#apply-filter {
+  margin-left: 5px;
+}
+
 .main-wrapper {
   padding: 5px;
 }
@@ -155,8 +159,6 @@ ol li {
     margin-top: 52px;
 }
 
-#tick-icon {    
-}
 
 .show { 
   display: inline-block !important;
@@ -176,6 +178,7 @@ ol li {
   color: white;
   font-size: 12px;
   padding: 6px;    
+  margin-left: 5px;
 }
 
 #postman-not-enabled{
