@@ -316,6 +316,9 @@ function sendXhrRequest(request) {
 
     // Adds the prefix: Postman- before all restricted headers
 	for(var i = 0, len = headers.length; i < len; i++) {
+		if(!headers[i].hasOwnProperty("name")) {
+			headers[i].name = headers[i].key;
+		}
 		var upperCasedHeader = headers[i].name.toUpperCase();
 		if(upperCasedHeader==="COOKIE") {
 			cookies = setCookiesFromHeader(headers[i].value, request.url);
