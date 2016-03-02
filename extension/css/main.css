@@ -14,7 +14,7 @@ body {
 }
 
 .main-wrapper {
-  padding: 5px;
+  padding: 7px;
 }
 
 .main-warning-label-wrapper {
@@ -36,6 +36,10 @@ body {
   text-decoration: underline;
 }
 
+ol {
+  list-style-type: none;
+}
+
 label {
 	position: relative;
 	right: 50px;
@@ -46,11 +50,13 @@ label {
 h3 {
   color: #f15a24;
   font-size: 16px;
+  font-weight: normal;
 }
 
 h4 {
   color: #4a90e2;
   font-size: 16px;
+  font-weight: normal;
 }
 
 .btn {
@@ -183,4 +189,10 @@ ol li {
 
 #postman-not-enabled{
   display: none;
+}
+
+.onoffswitch-label {
+    right: inherit;
+    position: initial;
+    margin: 10px 0;
 }

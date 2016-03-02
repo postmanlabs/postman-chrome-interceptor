@@ -658,7 +658,7 @@ function isMethodWithBody(method) {
 // sends the captured request to postman with id as reqId (using the requestCache)
 // then clears the cache
 function sendCapturedRequestToPostman(reqId){
-  var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">" + requestCache[reqId].method + "</span><span>" + (requestCache[reqId].url).substring(0, 150) + "</span>";
+  var loggerMsg = "<span class=\"" + addClassForRequest(requestCache[reqId].method) + "\">" + requestCache[reqId].method + "</span><span class=\"captured-request-url\">" + (requestCache[reqId].url).substring(0, 150) + "</span>";
 
   var request = requestCache[reqId];
   var methodWithBody = isMethodWithBody(request.method);
