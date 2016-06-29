@@ -463,21 +463,23 @@ function getHeader(headers, name) {
 
 // returns an edited header object with retained postman headers
 function onBeforeSendHeaders(details) {
-	var tokenHeaderIndex = getHeader(details.requestHeaders, "Postman-Token");
-	var requestHeaders = details.requestHeaders;
-	var index;
-	var name;
-	var prefix = "Postman-";
-	var prefixLength = prefix.length;
-	var newHeaders = [];                // array to hold all headers sent by postman
-	var n;
-	var os = [];
-	var ds = [];
-	var i = 0, j = 0;	
-	var term;	
+	var hasRestrictedHeader = _.find(details.requestHeaders, function(headerObject) {
+			return headerObject.name.indexOf("Postman-") === 0;
+		}),
+		requestHeaders = details.requestHeaders,
+		index,
+		name,
+		prefix = "Postman-",
+		prefixLength = prefix.length,
+		newHeaders = [],                // array to hold all headers sent by postman
+		n,
+		os = [],
+		ds = [],
+		i = 0, j = 0,
+		term;	
 
-	// runs only if Postman-token is present
-	if (tokenHeaderIndex >= 0) {		
+	// runs only if a header with a Postman- prefix is present
+	if (hasRestrictedHeader) {		
 
 		for(i = 0, len = requestHeaders.length; i < len; i++) {
 			name = requestHeaders[i].name;			
