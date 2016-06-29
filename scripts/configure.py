@@ -24,6 +24,8 @@ def generate_config_file(web_url):
 		app_id = 'POSTMAN_APP_ID_DEV'
 	elif web_url == "syncstage":
 		app_id = 'POSTMAN_APP_ID_SYNCSTAGE'
+	elif web_url == "beta":
+		app_id = 'POSTMAN_APP_ID_BETA'
 	else:		
 		app_id = 'POSTMAN_APP_ID_LOCAL'
 
@@ -33,7 +35,7 @@ def generate_config_file(web_url):
 
 def main():
     parser = OptionParser(usage="Usage: %prog [options] filename")    
-    parser.add_option("-u", "--web_url", dest="web_url", help="(production/staging/dev/syncstage/local)")    
+    parser.add_option("-u", "--web_url", dest="web_url", help="(production/staging/dev/syncstage/beta/local)")    
 
     (options, args) = parser.parse_args()
 
