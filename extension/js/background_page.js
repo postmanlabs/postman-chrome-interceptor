@@ -135,8 +135,8 @@ function unpackHeaders(data) {
         var loc = hash.search(':');
 
         if (loc !== -1) {
-            var name = hash.substr(0, loc);
-            var value = hash.substr(loc + 1);
+            var name = hash.substr(0, loc).trim(),
+            	value = hash.substr(loc + 1).trim();
             
             vars[name] = value;
         }
