@@ -27,8 +27,6 @@ var requestCache = {};
 var maxItems = 10;
 var logCache = new Deque(maxItems);
 
-var queue = [];
-
 var toAddHeaders = false;
 
 var background = this;
@@ -210,18 +208,13 @@ function getFormData(body) {
 }
 
 // sends any errors to postman encountered when XHR was loaded
-function sendErrorToPostman(error) {
-	var guid = queue[0].postmanMessage.guid;
+function sendErrorToPostman(postmanMessage, error) {
+	var guid = postmanMessage.guid;
 	
-	var customAppId = queue[0].postmanMessage.postmanAppId;
+	var customAppId = postmanMessage.postmanAppId;
 	if(!customAppId) {
 		customAppId = postmanAppId;
 	}
-	
-	queue.splice(0, 1);
-
-	//console.log(queue);
-
 
 	chrome.runtime.sendMessage(
 		customAppId, 
@@ -237,25 +230,16 @@ function sendErrorToPostman(error) {
 			console.log("Received response", response);
 		}
 	);
-	
-	if (queue.length > 0) {
-		sendXhrRequest(queue[0].postmanMessage.request);
-	}
 }
 
 // called after the XHR has loaded. Sends the reponse to Postman
-// also triggers the XHR for the next item in the QUEUE
-function sendResponseToPostman(response, cookies) {
-	var guid = queue[0].postmanMessage.guid;
+function sendResponseToPostman(postmanMessage, response, cookies) {
+	var guid = postmanMessage.guid;
 
-	var customAppId = queue[0].postmanMessage.postmanAppId;
+	var customAppId = postmanMessage.postmanAppId;
 	if(!customAppId) {
 		customAppId = postmanAppId;
 	}
-	
-	queue.splice(0, 1);	
-
-	//console.log("QUEUE", queue);
 
 	chrome.runtime.sendMessage(
 		customAppId, 
@@ -272,10 +256,6 @@ function sendResponseToPostman(response, cookies) {
 			//console.log("Received response", response);
 		}
 	);
-
-	if (queue.length > 0) {
-		sendXhrRequest(queue[0].postmanMessage.request);
-	}
 }
 
 function setCookiesFromHeader(cookieHeader, url) {
@@ -305,9 +285,9 @@ function setCookiesFromHeader(cookieHeader, url) {
 
 
 // the workhorse function - sends the XHR on behalf of postman
-function sendXhrRequest(request) {
+function sendXhrRequest(postmanMessage) {
 
-	currentRequest = request;
+	currentRequest = postmanMessage.request;
 
 	// TODO Set restricted headers
 	var headers = currentRequest.headers;
@@ -334,89 +314,92 @@ function sendXhrRequest(request) {
 		}
 	}	
 
-	var url = request.url;
-	var dataMode = request.dataMode; // what is this for?
-	var xhrTimeout = request.xhrTimeout;
-
-    // Called when the XHR reuqest gets an error
-	function onXhrError(event) {
-		var error = {
-			"status": event.target.status,
-			"statusText": event.target.statusText
-		};
-
-		sendErrorToPostman(error);
-	}
-
-	// Call back function when XHR is loaded - calls sendResponseToPostman with response 
-	// and cookies
-	function onXhrLoad() {
-		if(sendNextResponseToPostman === false && (queue.length==0 || redirectUrlToBlock===queue[0].postmanMessage.request.url)) {
-			sendNextResponseToPostman = true;
-			return;
-		}
-
-		toAddHeaders = false;
-
-		var r = this;
-		var response;
-		// RESPONSE HEADERS
-		var unpackedHeaders = unpackHeaders(this.getAllResponseHeaders());
-		var rawHeaders = this.getAllResponseHeaders();
-		var toGetCookies = true;
-
-		if (this.responseType === "arraybuffer") {			
-			response = {
-				"readyState": this.readyState,
-				"response": getBase64FromArrayBuffer(this.response),
-				// "responseText": this.responseText,
-				"responseType": this.responseType,
-				"status": this.status,
-				"statusText": this.statusText,
-				"timeout": this.timeout,
-				"withCredentials": this.withCredentials,
-				"rawHeaders": rawHeaders,
-				"headers": unpackedHeaders
-			};
-
-			//console.log("Received arraybuffer response", response);
-		}
-		else {
-			//if contenttype is image, there's no need to send the request again, with contenttype=arraybuffer
-			response = {
-				"readyState": this.readyState,
-				"response": this.response,
-				"responseText": this.responseText,
-				"responseType": this.responseType,
-				"status": this.status,
-				"statusText": this.statusText,
-				"timeout": this.timeout,
-				"withCredentials": this.withCredentials,
-				"rawHeaders": rawHeaders,
-				"headers": unpackedHeaders
-			};
-		}
-
-		if (toGetCookies) {
-			chrome.cookies.getAll({url:url}, function (cookies) {
-				//console.log("Sending response to Postman", response);
-	            sendResponseToPostman(response, cookies);
-	        });
-		}			
-	}
+	var url = currentRequest.url;
+	var dataMode = currentRequest.dataMode; // what is this for?
+	var xhrTimeout = currentRequest.xhrTimeout;
 
 	// bootstrapping XHR and setting up callbacks
 	var xhr = new XMLHttpRequest();
-	xhr.onload = onXhrLoad;
-	xhr.onerror = onXhrError;
-	xhr.ontimeout = onXhrError;
+	xhr.onload = function(xhr, postmanMessage) {
+		return function() {
+			if(sendNextResponseToPostman === false && (redirectUrlToBlock===postmanMessage.request.url)) {
+				sendNextResponseToPostman = true;
+				return;
+			}
+
+			toAddHeaders = false;
+
+			var response;
+			// RESPONSE HEADERS
+			var unpackedHeaders = unpackHeaders(xhr.getAllResponseHeaders());
+			var rawHeaders = xhr.getAllResponseHeaders();
+			var toGetCookies = true;
+
+			if (xhr.responseType === "arraybuffer") {			
+				response = {
+					"readyState": xhr.readyState,
+					"response": getBase64FromArrayBuffer(xhr.response),
+					// "responseText": xhr.responseText,
+					"responseType": xhr.responseType,
+					"status": xhr.status,
+					"statusText": xhr.statusText,
+					"timeout": xhr.timeout,
+					"withCredentials": xhr.withCredentials,
+					"rawHeaders": rawHeaders,
+					"headers": unpackedHeaders
+				};
+
+				//console.log("Received arraybuffer response", response);
+			}
+			else {
+				//if contenttype is image, there's no need to send the request again, with contenttype=arraybuffer
+				response = {
+					"readyState": xhr.readyState,
+					"response": xhr.response,
+					"responseText": xhr.responseText,
+					"responseType": xhr.responseType,
+					"status": xhr.status,
+					"statusText": xhr.statusText,
+					"timeout": xhr.timeout,
+					"withCredentials": xhr.withCredentials,
+					"rawHeaders": rawHeaders,
+					"headers": unpackedHeaders
+				};
+			}
+
+			if (toGetCookies) {
+				chrome.cookies.getAll({url:url}, function (cookies) {
+					//console.log("Sending response to Postman", response);
+		            sendResponseToPostman(postmanMessage, response, cookies);
+		        });
+			}
+		}
+	} (xhr, postmanMessage);
+
+	xhr.onerror = function (postmanMessage) {
+		return function(event) {
+			sendErrorToPostman(postmanMessage, {
+				"status": event.target.status,
+				"statusText": event.target.statusText
+			});
+		}
+	} (postmanMessage);
+
+	xhr.ontimeout = function (postmanMessage) {
+		return function(event) {
+			sendErrorToPostman(postmanMessage, {
+				"status": event.target.status,
+				"statusText": event.target.statusText
+			});
+		}
+	} (postmanMessage);
 	
 	if (xhrTimeout !== 0) {
 		xhr.timeout = xhrTimeout;
 	}
 
-	xhr.responseType = request.responseType;
-	xhr.open(request.method, url, true);	
+	xhr.responseType = currentRequest.responseType;
+	xhr.open(currentRequest.method, url, true);	
 
 	for (var i = 0; i < headers.length; i++) {
 		// sets the headers on XHR with Postman- prefix
@@ -435,14 +418,14 @@ function sendXhrRequest(request) {
 
 	toAddHeaders = true;
 
-	if ("body" in request) {
-		var body = request.body;
+	if ("body" in currentRequest) {
+		var body = currentRequest.body;
 		if (dataMode === "binary") {
-			body = ArrayBufferEncoderDecoder.decode(request.body);			
+			body = ArrayBufferEncoderDecoder.decode(currentRequest.body);			
 			//console.log("Decoded body", body);
 		}
 		else if (dataMode === "params") {
-			body = getFormData(request.body);
+			body = getFormData(currentRequest.body);
 		}
 		xhr.send(body);
 	} else {
@@ -529,17 +512,8 @@ function onBeforeSendHeaders(details) {
 	return {requestHeaders: requestHeaders};
 }
 
-// adds a postman-received request in the QUEUE 
-// sends the XHR if length is 1
-function addToQueue(request) {
-	queue.push(request);
 
-	if (queue.length === 1) {		
-		sendXhrRequest(queue[0].postmanMessage.request);
-	}	
-}
-
-// responds to a message from postman - adds the XHR from postman to queue
+// responds to a message from postman
 function onExternalMessage(request, sender, sendResponse) {
     if (sender.id in blacklistedIds) {
       sendResponse({"result":"sorry, could not process your message"});
@@ -553,7 +527,7 @@ function onExternalMessage(request, sender, sendResponse) {
   	  }
 
       if (type === "xhrRequest") {
-        addToQueue(request);
+      	sendXhrRequest(request.postmanMessage);
       }
       else if (type === "detectExtension") {
         sendResponse({"result": true});	
