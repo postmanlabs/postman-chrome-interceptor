@@ -301,7 +301,7 @@ function sendXhrRequest(postmanMessage) {
 		}
 		var upperCasedHeader = headers[i].name.toUpperCase();
 		if(upperCasedHeader==="COOKIE") {
-			cookies = setCookiesFromHeader(headers[i].value, request.url);
+			cookies = setCookiesFromHeader(headers[i].value, currentRequest.url);
 		}
 		else {
 			found = restrictedChromeHeaders.indexOf(upperCasedHeader) >= 0;
