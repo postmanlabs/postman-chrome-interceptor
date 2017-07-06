@@ -41,6 +41,12 @@ var appOptions = {
 	filterRequestUrl: '.*'
 }
 
+// requestId is a chrome-specific value that we get in the onBeforeHeadersSent handler
+// postman-interceptor-token is a header (X-Postman-Interceptor-Id) that we add in the interceptor code
+var requestTokenMap = {}; // map from postman-interceptor-token to postmanMessage and requestId.
+var requestIdMap = {}; // map from requestId to postmanMessage and postman-interceptor-token.
+var CUSTOM_INTERCEPTOR_HEADER = "X-Postman-Interceptor-Id";
+
 var restrictedChromeHeaders = [
     "ACCEPT-CHARSET",
     "ACCEPT-ENCODING",
@@ -290,9 +296,9 @@ function sendXhrRequest(postmanMessage) {
 	currentRequest = postmanMessage.request;
 
 	// TODO Set restricted headers
-	var headers = currentRequest.headers;
-	var cookies = [];
-	var found;
+	var headers = currentRequest.headers,
+		cookies = [],
+		xPostmanInterceptorId = postmanMessage.guid;
 
     // Adds the prefix: Postman- before all restricted headers
 	for(var i = 0, len = headers.length; i < len; i++) {
@@ -320,12 +326,19 @@ function sendXhrRequest(postmanMessage) {
 
 	// bootstrapping XHR and setting up callbacks
 	var xhr = new XMLHttpRequest();
-	xhr.onload = function(xhr, postmanMessage) {
+	xhr.onload = function(xhr, postmanMessage, xPostmanInterceptorId) {
 		return function() {
-			if(sendNextResponseToPostman === false && (redirectUrlToBlock===postmanMessage.request.url)) {
-				sendNextResponseToPostman = true;
+			if(!requestTokenMap[xPostmanInterceptorId]) {
+				// Do not continue if the map entry for this request has been cleared. 
+				// Could have happened due to the redirect being intercepted
 				return;
 			}
+
+
+			// delete both map entries for this request
+			var requestId = requestTokenMap[xPostmanInterceptorId].requestId;
+			delete requestIdMap[requestId];
+			delete requestTokenMap[xPostmanInterceptorId];
 
 			toAddHeaders = false;
 
@@ -333,7 +346,6 @@ function sendXhrRequest(postmanMessage) {
 			// RESPONSE HEADERS
 			var unpackedHeaders = unpackHeaders(xhr.getAllResponseHeaders());
 			var rawHeaders = xhr.getAllResponseHeaders();
-			var toGetCookies = true;
 
 			if (xhr.responseType === "arraybuffer") {			
 				response = {
@@ -367,14 +379,11 @@ function sendXhrRequest(postmanMessage) {
 				};
 			}
 
-			if (toGetCookies) {
-				chrome.cookies.getAll({url:url}, function (cookies) {
-					//console.log("Sending response to Postman", response);
-		            sendResponseToPostman(postmanMessage, response, cookies);
-		        });
-			}
+			chrome.cookies.getAll({url:url}, function (cookies) {
+				sendResponseToPostman(postmanMessage, response, cookies);
+			});
 		}
-	} (xhr, postmanMessage);
+	} (xhr, postmanMessage, xPostmanInterceptorId);
 
 	xhr.onerror = function (postmanMessage) {
 		return function(event) {
@@ -415,6 +424,7 @@ function sendXhrRequest(postmanMessage) {
 			console.log("Continuing after header failure");
 		}
 	}
+	xhr.setRequestHeader(CUSTOM_INTERCEPTOR_HEADER, xPostmanInterceptorId);
 
 	toAddHeaders = true;
 
@@ -430,7 +440,13 @@ function sendXhrRequest(postmanMessage) {
 		xhr.send(body);
 	} else {
 		xhr.send();
-	}	
+	}
+
+	// this is a global map of postmanMessage objects
+	// needed to send the redirect response to the correct tab
+	requestTokenMap[xPostmanInterceptorId] = {
+		postmanMessage: postmanMessage
+	}
 }
 
 
@@ -449,6 +465,9 @@ function onBeforeSendHeaders(details) {
 	var hasRestrictedHeader = _.find(details.requestHeaders, function(headerObject) {
 			return headerObject.name.indexOf("Postman-") === 0;
 		}),
+		hasPostmanInterceptorTokenHeader = _.find(details.requestHeaders, function(headerObject) {
+			return headerObject.name == CUSTOM_INTERCEPTOR_HEADER
+		}),
 		requestHeaders = details.requestHeaders,
 		index,
 		name,
@@ -459,9 +478,20 @@ function onBeforeSendHeaders(details) {
 		os = [],
 		ds = [],
 		i = 0, j = 0,
-		term;	
+		term;
+
+	if (hasPostmanInterceptorTokenHeader && !requestIdMap[details.requestId]) {
+		// The request was sent from Postman, and this is the first time
+		// requestIdMap is being populated
+		requestTokenMap[hasPostmanInterceptorTokenHeader.value].requestId = details.requestId;
+		requestIdMap[details.requestId] = {
+			postmanMessage: requestTokenMap[hasPostmanInterceptorTokenHeader.value].postmanMessage,
+			requestToken: hasPostmanInterceptorTokenHeader.value
+		};
+	}
 
 	// runs only if a header with a Postman- prefix is present
+	// headers with the postman- prefix were modified earlier, and the prefix needs to be stripped out now
 	if (hasRestrictedHeader) {		
 
 		for(i = 0, len = requestHeaders.length; i < len; i++) {
@@ -550,14 +580,23 @@ function onBeforeRedirect(details) {
 	//if followRedirects = false
 	//send this response to Postman
 	//set request.sendResponse for this request in cache to fals
+	var requestId = details.requestId;
+	if(!requestIdMap[requestId]) {
+		//not there in pending requests
+		return;
+	}
+	var postmanMessage = requestIdMap[requestId].postmanMessage,
+		followRedirect = postmanMessage.autoRedirect;
 	if(followRedirect === false) {
 		var responseForPostman = convertRedirectResponse(details);
-		sendNextResponseToPostman = false;
-		redirectUrlToBlock = details.url;
+
+		// delete the two entries for this request
+		delete requestTokenMap[requestIdMap[requestId].requestToken];
+		delete requestIdMap[requestId];
+
 		chrome.cookies.getAll({url:details.url}, function (cookies) {
 			console.log("Sending redirect response to Postman", responseForPostman);
-            sendResponseToPostman(responseForPostman, cookies);
-            followRedirect = true;
+            sendResponseToPostman(postmanMessage, responseForPostman, cookies);
         });
 	}
 }
