@@ -2,92 +2,69 @@
 //chrome.management.get("fhbjgbiflinjbdggehcddcbncdddomop", function(a) {console.log(a)})
 //chrome.management.launchApp("fhbjgbiflinjbdggehcddcbncdddomop", function(a) {console.log(a)}) to open the app
 
-var blacklistedIds = ["none"];
-var currentRequest;
-var cookies;
+var blacklistedIds = ["none"],
 
-// enum for postman message types
-var postmanMessageTypes = {
-  xhrError: "xhrError",
-  xhrResponse: "xhrResponse",
-  captureStatus: "captureStatus",
-  capturedRequest: "capturedRequest"
-};
+	// enum for postman message types
+	postmanMessageTypes = {
+	  xhrError: "xhrError",
+	  xhrResponse: "xhrResponse",
+	  captureStatus: "captureStatus",
+	  capturedRequest: "capturedRequest"
+	},
 
-// indicates status of popup connected
-var popupConnected = false;
+	// indicates status of popup connected
+	popupConnected = false,
 
-// placeholder for the background page port object for transferring log msgs
-var BackgroundPort;
+	// placeholder for the background page port object for transferring log msgs
+	BackgroundPort,
 
-// object store to cache captured requests
-var requestCache = {};
+	// object store to cache captured requests
+	requestCache = {},
 
-// storing last N (maxItems) log messages
-var maxItems = 10;
-var logCache = new Deque(maxItems);
+	// storing last N (maxItems) log messages
+	maxItems = 10,
+	logCache = new Deque(maxItems),
 
-var toAddHeaders = false;
+	background = this,
 
-var background = this;
+	// Options which are shared with Extension Popup.
+	appOptions = {
+		isCaptureStateEnabled: false,
+		filterRequestUrl: '.*'
+	},
 
-var followRedirect = true;
-var sendNextResponseToPostman = true;
-var redirectUrlToBlock = "";
+	// requestId is a chrome-specific value that we get in the onBeforeSendHeaders handler
+	// postman-interceptor-token is a header (X-Postman-Interceptor-Id) that we add in the interceptor code
+	requestTokenMap = {}, // map from postman-interceptor-token to postmanMessage and requestId.
+	requestIdMap = {}, // map from requestId to postmanMessage and postman-interceptor-token.
+	CUSTOM_INTERCEPTOR_HEADER = "X-Postman-Interceptor-Id",
 
-// Options which are shared with Extension Popup.
-var appOptions = {
-	isCaptureStateEnabled: false,
-	filterRequestUrl: '.*'
-}
+	restrictedChromeHeaders = [
+	    "ACCEPT-CHARSET",
+	    "ACCEPT-ENCODING",
+	    "ACCESS-CONTROL-REQUEST-HEADERS",
+	    "ACCESS-CONTROL-REQUEST-METHOD",
+	    "CONTENT-LENGTHNECTION",
+	    "CONTENT-LENGTH",
+	    "COOKIE",
+	    "CONTENT-TRANSFER-ENCODING",
+	    "DATE",
+	    "EXPECT",
+	    "HOST",
+	    "KEEP-ALIVE",
+	    "ORIGIN",
+	    "REFERER",
+	    "TE",
+	    "TRAILER",
+	    "TRANSFER-ENCODING",
+	    "UPGRADE",
+	    "USER-AGENT",
+	    "VIA"
+	],
 
-// requestId is a chrome-specific value that we get in the onBeforeHeadersSent handler
-// postman-interceptor-token is a header (X-Postman-Interceptor-Id) that we add in the interceptor code
-var requestTokenMap = {}; // map from postman-interceptor-token to postmanMessage and requestId.
-var requestIdMap = {}; // map from requestId to postmanMessage and postman-interceptor-token.
-var CUSTOM_INTERCEPTOR_HEADER = "X-Postman-Interceptor-Id";
+	postmanCheckTimeout = null,
+	isPostmanOpen = true;
 
-var restrictedChromeHeaders = [
-    "ACCEPT-CHARSET",
-    "ACCEPT-ENCODING",
-    "ACCESS-CONTROL-REQUEST-HEADERS",
-    "ACCESS-CONTROL-REQUEST-METHOD",
-    "CONTENT-LENGTHNECTION",
-    "CONTENT-LENGTH",
-    "COOKIE",
-    "CONTENT-TRANSFER-ENCODING",
-    "DATE",
-    "EXPECT",
-    "HOST",
-    "KEEP-ALIVE",
-    "ORIGIN",
-    "REFERER",
-    "TE",
-    "TRAILER",
-    "TRANSFER-ENCODING",
-    "UPGRADE",
-    "USER-AGENT",
-    "VIA"
-];
-
-var postmanCheckTimeout = null;
-var isPostmanOpen = true;
-// //Causes the collection runner to treat this as an actual response :(
-// setInterval(function() {
-// 	clearTimeout(postmanCheckTimeout);
-// 	chrome.runtime.sendMessage(postmanAppId, {}, function (extResponse) {
-// 		clearTimeout(postmanCheckTimeout);
-// 		if(typeof extResponse === "undefined") {
-// 			//Postman is not open
-// 			isPostmanOpen = false;
-// 		}
-// 		setPostmanOpenStatus(isPostmanOpen);
-// 	});
-// 	postmanCheckTimeout = setTimeout(function() {
-// 		isPostmanOpen = true;
-// 		setPostmanOpenStatus(isPostmanOpen);
-// 	}, 300);
-// }, 2000);
 
 function setPostmanOpenStatus(isOpen) {
 	if(isOpen) {
@@ -107,16 +84,15 @@ function setOrangeIcon() {
 }
 
 function getBase64FromArrayBuffer(responseData) {
-    var uInt8Array = new Uint8Array(responseData);
-    var i = uInt8Array.length;
-    var binaryString = new Array(i);
+    var uInt8Array = new Uint8Array(responseData),
+    	i = uInt8Array.length,
+    	binaryString = new Array(i);
     while (i--)
     {
       binaryString[i] = String.fromCharCode(uInt8Array[i]);
     }
-    var data = binaryString.join('');
-
-    var base64 = window.btoa(data);
+    var data = binaryString.join(''),
+    	base64 = window.btoa(data);
 
     return base64;
 }
@@ -293,7 +269,7 @@ function setCookiesFromHeader(cookieHeader, url) {
 // the workhorse function - sends the XHR on behalf of postman
 function sendXhrRequest(postmanMessage) {
 
-	currentRequest = postmanMessage.request;
+	var currentRequest = postmanMessage.request;
 
 	// TODO Set restricted headers
 	var headers = currentRequest.headers,
@@ -339,8 +315,6 @@ function sendXhrRequest(postmanMessage) {
 			var requestId = requestTokenMap[xPostmanInterceptorId].requestId;
 			delete requestIdMap[requestId];
 			delete requestTokenMap[xPostmanInterceptorId];
-
-			toAddHeaders = false;
 
 			var response;
 			// RESPONSE HEADERS
@@ -425,8 +399,6 @@ function sendXhrRequest(postmanMessage) {
 		}
 	}
 	xhr.setRequestHeader(CUSTOM_INTERCEPTOR_HEADER, xPostmanInterceptorId);
-
-	toAddHeaders = true;
 
 	if ("body" in currentRequest) {
 		var body = currentRequest.body;
@@ -551,10 +523,8 @@ function onExternalMessage(request, sender, sendResponse) {
     } 
     else if (request.postmanMessage) {
       sendResponse({"result":"Ok, got your message"});
+      
       var type = request.postmanMessage.type;
-      if(request.postmanMessage.hasOwnProperty("autoRedirect")) {
-   	  	followRedirect = request.postmanMessage.autoRedirect;
-  	  }
 
       if (type === "xhrRequest") {
       	sendXhrRequest(request.postmanMessage);
@@ -577,7 +547,6 @@ function filterCapturedRequest(request) {
 
 //
 function onBeforeRedirect(details) {
-	//if followRedirects = false
 	//send this response to Postman
 	//set request.sendResponse for this request in cache to fals
 	var requestId = details.requestId;
@@ -633,7 +602,6 @@ function convertRedirectResponse(details) {
 
 // for filtered requests sets a key in requestCache
 function onBeforeRequest(details) {
-  //if (filterCapturedRequest(details)) {
   if (filterCapturedRequest(details) && !isPostmanRequest(details) && appOptions.isCaptureStateEnabled) {
     requestCache[details.requestId] = details;
     console.log("Request " + details.requestId+" added to cache");
@@ -644,7 +612,7 @@ function onBeforeRequest(details) {
 function isPostmanRequest(request) {
   return (_.chain(request.requestHeaders)
           .pluck('name')
-          .contains('Postman-Token')
+          .contains(CUSTOM_INTERCEPTOR_HEADER)
           .value())
 }
 
