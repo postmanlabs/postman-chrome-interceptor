@@ -84,17 +84,17 @@ function setOrangeIcon() {
 }
 
 function getBase64FromArrayBuffer(responseData) {
-    var uInt8Array = new Uint8Array(responseData),
-    	i = uInt8Array.length,
-    	binaryString = new Array(i);
-    while (i--)
-    {
-      binaryString[i] = String.fromCharCode(uInt8Array[i]);
-    }
-    var data = binaryString.join(''),
-    	base64 = window.btoa(data);
+    var uInt8Array = new Uint8Array(responseData);
+    var str = new TextDecoder().decode(uInt8Array);
 
-    return base64;
+    console.log(str)
+
+    function b64EncodeUnicode(str) {
+     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode('0x' + p1);
+     }));
+    }
+    return b64EncodeUnicode(str)
 }
 
 // returns an object from the xhr.getAllReponseHeaders text-only version
