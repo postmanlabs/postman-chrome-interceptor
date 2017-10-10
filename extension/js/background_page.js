@@ -486,8 +486,14 @@ function onBeforeSendHeaders(details) {
 		}
 
 	    // retains the postman headers that are repeated
+	    var tempRequestHeaders = requestHeaders.slice();
 		for(j = 0; j < ds.length; j++) {
-			requestHeaders.splice(ds[j], 1);
+			for(k = 0; k < requestHeaders.length; k++) {
+				if(requestHeaders[k].name === tempRequestHeaders[ds[j]].name) {
+					requestHeaders.splice(ds[k], 1);
+					break;
+				}
+			}
 		}
 
 		i = 0;
