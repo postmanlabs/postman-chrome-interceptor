@@ -469,41 +469,23 @@ function onBeforeSendHeaders(details) {
 		for(i = 0, len = requestHeaders.length; i < len; i++) {
 			name = requestHeaders[i].name;			
       
-      // for all headers that are being sent by Postman
+			// for all headers that are being sent by Postman
 			if (name.search(prefix) === 0 && name !== "Postman-Token") {
 				n = requestHeaders[i].name.substr(prefixLength);
 
-        		// push them in newHeaders
+				// push them in newHeaders
 				newHeaders.push({
 					"name": n,
 					"value": requestHeaders[i].value
 				});
-				
-				var term = prefix + n;
 
-				ds.push(arrayObjectIndexOf(requestHeaders, term, "name") );
+				// remove from oldheaders
+				requestHeaders.splice(i, 1);
+				len--;
+				i--;
 			}
 		}
 
-	    // retains the postman headers that are repeated
-		for(j = 0; j < ds.length; j++) {
-			requestHeaders.splice(ds[j], 1);
-		}
-
-		i = 0;
-
-		if (requestHeaders[i]) {
-			while(requestHeaders[i]) {				
-				name = requestHeaders[i].name;
-				if (name.search(prefix) === 0 && name !== "Postman-Token") {
-					requestHeaders.splice(i, 1);
-					i--;
-				}
-
-				i++;
-			}			
-		}
-		
 		for(var k = 0; k < newHeaders.length; k++) {
 			requestHeaders.push(newHeaders[k]);
 		}
