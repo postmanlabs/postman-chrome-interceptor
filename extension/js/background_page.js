@@ -265,6 +265,21 @@ function setCookiesFromHeader(cookieHeader, url) {
 	}
 }
 
+//Setting browser cookies for postman's request url
+function setExistingBrowserCookiesForUrl(url){
+    return new Promise(function(resolve, reject){
+        chrome.cookies.getAll({url:url}, function(cookies) {
+            for (var i = 0; i < cookies.length; i++) {
+                chrome.cookies.set({
+                    url: url,
+                    name: cookies[i].name,
+                    value: cookies[i].value
+                });
+            }
+            resolve()
+        });
+    });
+}
 
 // the workhorse function - sends the XHR on behalf of postman
 function sendXhrRequest(postmanMessage) {
@@ -509,7 +524,9 @@ function onExternalMessage(request, sender, sendResponse) {
       var type = request.postmanMessage.type;
 
       if (type === "xhrRequest") {
-      	sendXhrRequest(request.postmanMessage);
+          var currentRequest = request.postmanMessage.request;
+          setExistingBrowserCookiesForUrl(currentRequest.url)
+              .then(function(){sendXhrRequest(request.postmanMessage)});
       }
       else if (type === "detectExtension") {
         sendResponse({"result": true});	
