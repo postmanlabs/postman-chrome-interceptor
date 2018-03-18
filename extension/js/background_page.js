@@ -131,9 +131,7 @@ function isContentTypeImage(headers, contentType) {
 		var contentType = headers["Content-Type"];
 		return (contentType.search(/image/i) >= 0);
 	}
-  else {
-  }
-  return false;
+  	return false;
 }
 
 //Usage arrayObjectIndexOf(items, "Washington", "city");
